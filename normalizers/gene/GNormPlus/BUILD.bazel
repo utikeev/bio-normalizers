@@ -1,0 +1,12 @@
+py_library(
+    name = 'GNormPlus',
+    srcs = glob(['*.py']),
+    deps = [],
+)
+
+py_binary(
+    name = 'main',
+    main = 'main.py',
+    srcs = ['main.py'],
+    deps = [':GNormPlus'],
+)

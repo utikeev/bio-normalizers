@@ -1,0 +1,9 @@
+# PyCharm
+.ijwb
+.idea
+
+# Bazel
+bazel-bin
+bazel-bio-normalizers
+bazel-out
+bazel-testlogs
