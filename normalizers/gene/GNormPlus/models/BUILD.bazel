@@ -1,0 +1,5 @@
+py_library(
+    name = 'models',
+    srcs = glob(['*.py']),
+    deps = [],
+)
