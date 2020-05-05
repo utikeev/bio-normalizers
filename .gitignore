@@ -7,3 +7,6 @@ bazel-bin
 bazel-bio-normalizers
 bazel-out
 bazel-testlogs
+
+**/data/**/*.txt
+sync-normalizers.sh

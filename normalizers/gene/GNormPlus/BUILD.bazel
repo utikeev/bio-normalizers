@@ -1,12 +1,15 @@
 py_library(
     name = 'GNormPlus',
     srcs = glob(['*.py']),
-    deps = [],
+    deps = ['//normalizers/gene/GNormPlus/util'],
 )
 
 py_binary(
     name = 'main',
     main = 'main.py',
     srcs = ['main.py'],
-    deps = [':GNormPlus'],
+    deps = [
+        ':GNormPlus',
+    ],
+    data = ['//normalizers/gene/GNormPlus/data'],
 )
