@@ -1,0 +1,8 @@
+load('//build:tests.bzl', 'run_pytest')
+
+run_pytest(
+    name = 'tests',
+    srcs = glob(['test_*.py']),
+    deps = ['//normalizers/gene/GNormPlus/util'],
+    size = 'small'
+)
