@@ -4,7 +4,7 @@ from typing import Set, Dict, List, Callable
 from tqdm import tqdm
 
 from normalizers.gene.GNormPlus.config import GNormPlusConfig
-from normalizers.gene.GNormPlus.lib.trees import PrefixTree
+from normalizers.gene.GNormPlus.util.trees import PrefixTree
 
 
 def _process_file(path: str, process_fn: Callable[[str], None], *, verbose: bool = False, message: str = ''):

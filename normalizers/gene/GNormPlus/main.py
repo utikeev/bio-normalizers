@@ -1,4 +1,4 @@
-from normalizers.gene.GNormPlus.lib.trees import PrefixTree
+from normalizers.gene.GNormPlus.util.trees import PrefixTree
 from normalizers.gene.GNormPlus.normalizer import GNormPlus
 
 if __name__ == '__main__':
