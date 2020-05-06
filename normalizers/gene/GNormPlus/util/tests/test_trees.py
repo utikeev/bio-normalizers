@@ -1,4 +1,4 @@
-from normalizers.gene.GNormPlus.util.trees import PrefixTree, PrefixTranslation
+from normalizers.gene.GNormPlus.util.trees import PrefixTree, PrefixTranslation, ID_NOT_FOUND, SUBSTRING_FOUND, MENTION_NOT_FOUND
 
 _SUFFIX_TRANSLATION_MAP = {
     'a': 'alpha',
@@ -41,3 +41,20 @@ def test_number_prefix_translation():
     node = node.find_child('208', PrefixTranslation.NUMBER)
     assert node is not None
     assert node.concept == '0'
+
+
+def test_find_mention():
+    tree = PrefixTree(_SUFFIX_TRANSLATION_MAP)
+    tree.insert('a-1', '1')
+    tree.insert('a-1-a', '2')
+
+    concept = tree.find_mention(['a-1-alpha'])
+    assert concept == '2'
+    concept = tree.find_mention(['a'])
+    assert concept == ID_NOT_FOUND
+    concept = tree.find_mention(['a-2'])
+    assert concept == SUBSTRING_FOUND
+    concept = tree.find_mention(['b'])
+    assert concept == MENTION_NOT_FOUND
+    concept = tree.find_mention(['alpha-1', 'a-1'])
+    assert concept == '1'

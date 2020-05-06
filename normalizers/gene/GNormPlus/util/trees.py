@@ -86,6 +86,10 @@ class Node:
         return None
 
 
+ID_NOT_FOUND = '-1'
+SUBSTRING_FOUND = '-2'
+MENTION_NOT_FOUND = '-3'
+
 _ROOT_NAME = '-ROOT-'
 
 
@@ -111,12 +115,7 @@ class PrefixTree:
             concept (str):
                 Its concept ID.
         """
-        mention = mention.lower()
-        mention = re.sub(r'([0-9])([a-z])', r'\1 \2', mention)
-        mention = re.sub(r'([a-z])([0-9])', r'\1 \2', mention)
-        mention = re.sub(r'[\W\-_]+', ' ', mention)
-
-        tokens = mention.split()
+        tokens = _split_to_tokens(mention)
         tmp: Node = self.root
         for i, token in enumerate(tokens):
             child_node = tmp.find_child(token)
@@ -158,6 +157,48 @@ class PrefixTree:
                 tmp = tmp.parent
             last_depth = len(locations) - 1
             tmp = tmp.insert(token, concept)
+
+    def find_mention(self, mentions: List[str]) -> str:
+        """Returns first matching mention concept or one of the error concepts.
+
+        Args:
+            mentions (List[str]):
+                List of aliases to find in tree.
+
+        Returns:
+            Concept of the first matched mention.
+        """
+        for mention in mentions:
+            tokens = _split_to_tokens(mention)
+            cnt = len(tokens)
+            tmp: Optional[Node] = self.root
+            found = -1
+            prefix_translation = PrefixTranslation.NONE
+            for i, token in enumerate(tokens):
+                if i == cnt - 1:
+                    prefix_translation = PrefixTranslation.SUFFIX_TRANSLATION_MAP
+                tmp = tmp.find_child(token, prefix_translation)
+                if tmp is None:
+                    break
+                found = i
+            if found != -1:
+                if found == cnt - 1:
+                    if tmp.concept:
+                        return tmp.concept
+                    else:
+                        return ID_NOT_FOUND
+                else:
+                    return SUBSTRING_FOUND
+
+        return MENTION_NOT_FOUND
+
+
+def _split_to_tokens(mention: str) -> List[str]:
+    mention = mention.lower()
+    mention = re.sub(r'([0-9])([a-z])', r'\1 \2', mention)
+    mention = re.sub(r'([a-z])([0-9])', r'\1 \2', mention)
+    mention = re.sub(r'[\W\-_]+', ' ', mention)
+    return mention.split()
 
 
 def _pretty_print(node: Node, depth: str) -> str:
