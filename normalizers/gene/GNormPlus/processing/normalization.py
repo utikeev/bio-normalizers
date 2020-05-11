@@ -32,7 +32,7 @@ def fill_gene_mention_hash(paper: Paper, gene_mention_hash: GeneMentionHash, men
             # Filtering
             found_filter = False
             for item in filtering:  # type: str
-                if m_type == GeneType.GENE and (re.match(fr'.*\|{item}.*', mentions) or re.match(fr'.*{item}\|.*', mentions)):
+                if m_type == GeneType.GENE and (re.match(fr'.*\|{item}$', mentions) or re.match(fr'^{item}\|.*', mentions)):
                     found_filter = True
                     break
 
