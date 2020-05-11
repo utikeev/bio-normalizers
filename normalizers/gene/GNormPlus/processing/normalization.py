@@ -1,7 +1,7 @@
 import re
 from typing import Dict, Set, Optional, List, Tuple
 
-from normalizers.gene.GNormPlus.models.paper import Paper, AnnotationType
+from normalizers.gene.GNormPlus.models.paper import Paper, AnnotationType, Passage, Annotation
 from normalizers.gene.GNormPlus.processing.scoring import score_function
 from normalizers.gene.GNormPlus.util.tokens import split_to_tokens
 from normalizers.gene.GNormPlus.util.trees import PrefixTree
@@ -18,19 +18,20 @@ MultiGeneToId = Dict[str, str]
 
 
 def fill_gene_mention_hash(paper: Paper, gene_mention_hash: GeneMentionHash, mention_hash: MentionHash, filtering: Filtering):
-    for passage in paper.passages:
-        for annotation in passage.annotations:
+    for passage in paper.passages:  # type: Passage
+        for annotation in passage.annotations:  # type: Annotation
+            annotation: Annotation
             start = annotation.location.start
             end = annotation.location.end
             mentions = annotation.text
             m_type = annotation.type
-            tax_id = annotation.tax_id
+            tax_id = annotation.tax_id.id
 
-            m_with_tax = f'{mentions}\t{tax_id.id}'
+            m_with_tax = f'{mentions}\t{tax_id}'
 
             # Filtering
             found_filter = False
-            for item in filtering:
+            for item in filtering:  # type: str
                 if m_type == AnnotationType.GENE and re.match(f'.*{item}.*', mentions):
                     found_filter = True
                     break
@@ -54,14 +55,14 @@ def find_in_gene_tree(paper: Paper, guaranteed_gene_to_id: GuaranteedGeneToID, m
     # Official name
     # Only one gene
     # Chromosome location
-    for gene_mention_tax, hashes in gene_mention_hash.items():
-        mentions, tax = gene_mention_tax.split('\t')
+    for gene_mention_tax, hashes in gene_mention_hash.items():  # type: str, Dict[str, str]
+        mentions, tax = gene_mention_tax.split('\t')  # type: str, str
         gms = mentions.split('|')
-        for mention in gms:
+        for mention in gms:  # type: str
             id_str = gene_tree.find_mention(mention)
             ids = id_str.split('|')
 
-            for ID in ids:
+            for ID in ids:  # type: str
                 tax_to_id = ID.split(':')  # taxID:geneIDs
                 if tax_to_id[0] == tax:
                     hashes[ID_KEY] = tax_to_id[1]
@@ -79,7 +80,7 @@ def find_in_gene_tree(paper: Paper, guaranteed_gene_to_id: GuaranteedGeneToID, m
                 else:  # Chromosome location
                     ids = gene_id.split(',')
                     found_by_chromosome = False
-                    for ID in ids:
+                    for ID in ids:  # type: str
                         if ID in paper.chromosome_hash:
                             guaranteed_gene_to_id[gene_mention_tax] = ID
                             found_by_chromosome = True
@@ -90,11 +91,11 @@ def find_in_gene_tree(paper: Paper, guaranteed_gene_to_id: GuaranteedGeneToID, m
 
 def infer_multiple_genes(guaranteed_gene_to_id: GuaranteedGeneToID, multi_gene_to_id: MultiGeneToId, gene_mention_hash: GeneMentionHash):
     # Multiple genes can be inferred by steps 1 and 2
-    for multi_gene, ids_str in multi_gene_to_id.items():
+    for multi_gene, ids_str in multi_gene_to_id.items():  # type: str, str
         found_guaranteed = False
-        for guaranteed_id in guaranteed_gene_to_id.values():
+        for guaranteed_id in guaranteed_gene_to_id.values():  # type: str
             ids = ids_str.split(',')
-            for ID in ids:
+            for ID in ids:  # type: str
                 if ID == guaranteed_id:
                     gene_mention_hash[multi_gene][ID_KEY] = ID
                     found_guaranteed = True
@@ -106,8 +107,8 @@ def infer_multiple_genes(guaranteed_gene_to_id: GuaranteedGeneToID, multi_gene_t
 def process_abbreviations(paper: Paper, gene_mention_hash: GeneMentionHash):
     # FullName -> Abbreviation
     # Abbreviation -> FullName
-    for gene_mention_tax, hashes in gene_mention_hash.items():
-        mentions, tax = gene_mention_tax.split('\t')
+    for gene_mention_tax, hashes in gene_mention_hash.items():  # type: str, Dict[str, str]
+        mentions, tax = gene_mention_tax.split('\t')  # type: str, str
         other_form: Optional[str] = None
         if mentions.lower() in paper.abb_lf_to_sf:
             other_form = paper.abb_lf_to_sf[mentions] + '\t' + tax
@@ -120,7 +121,7 @@ def process_abbreviations(paper: Paper, gene_mention_hash: GeneMentionHash):
 def rank_by_score_function(paper: Paper, gene_mention_hash: GeneMentionHash, mention_hash: MentionHash, gene_scoring: GeneScoring,
                            gene_scoring_df: GeneScoringDF):
     # Ranking by score function (inference network)
-    for gene_mention_tax, hashes in gene_mention_hash.items():
+    for gene_mention_tax, hashes in gene_mention_hash.items():  # type: str, Dict[str, str]
         if ID_KEY in hashes and ',' in hashes[ID_KEY]:
             gene_ids: List[str] = hashes[ID_KEY].split(',')
             max_score = .0
@@ -141,8 +142,8 @@ def remove_gmt(paper: Paper, gene_mention_hash: GeneMentionHash, gene_scoring: G
     # The inference network tokens of Abbreviation.ID should contain at least LF tokens
     # The short mention should be filtered if not long form support
     gmts: List[str] = []
-    for gene_mention_tax, hashes in gene_mention_hash.items():
-        mentions, tax = gene_mention_tax.split('\t')
+    for gene_mention_tax, hashes in gene_mention_hash.items():  # type: str, Dict[str, str]
+        mentions, tax = gene_mention_tax.split('\t')  # type: str, str
         if TYPE_KEY in hashes and ID_KEY in hashes and hashes[TYPE_KEY] == AnnotationType.GENE.value:
             ID = hashes[ID_KEY]
             gene_id = ''
@@ -160,13 +161,13 @@ def remove_gmt(paper: Paper, gene_mention_hash: GeneMentionHash, gene_scoring: G
                     scoring = gene_scoring[gene_id]
                     tokens = scoring[0].split(',')
                     token_lexicon: List[str] = []
-                    for token in tokens:
+                    for token in tokens:  # type: str
                         token_lexicon.append(token.split('-')[0])
 
                     lf_lower = paper.abb_sf_to_lf[mentions.lower()]
                     lf_tokens = split_to_tokens(lf_lower)
-                    for word in token_lexicon:
-                        for mention in lf_tokens:
+                    for word in token_lexicon:  # type: str
+                        for mention in lf_tokens:  # type: str
                             if word == mention and not re.match('[0-9]+', mention):
                                 lf_token_match = True
                 else:
@@ -180,42 +181,32 @@ def remove_gmt(paper: Paper, gene_mention_hash: GeneMentionHash, gene_scoring: G
             elif len(mentions) <= 2 and lf_exist:
                 gmts.append(gene_mention_tax)
 
-    for gmt in gmts:
+    for gmt in gmts:  # type: str
         gene_mention_hash.pop(gmt)
 
 
 def append_gene_ids(paper: Paper, gene_mention_hash: GeneMentionHash, family_name_tree: PrefixTree):
     # Append gene IDs
     gene_ids: Set[str] = set()
-    for passage in paper.passages:
-        for annotation in passage.annotations:
+    for passage in paper.passages:  # type: Passage
+        for annotation in passage.annotations:  # type: Annotation
             if annotation.type == AnnotationType.GENE:
                 m_with_tax = annotation.text + '\t' + annotation.tax_id.id
                 if m_with_tax in gene_mention_hash and ID_KEY in gene_mention_hash[m_with_tax]:
                     gene_id = gene_mention_hash[m_with_tax][ID_KEY]
                     annotation.id = gene_id
                     gene_ids.add(gene_id.split('-')[0])
-
-    # Extend to all gene mentions — omitted
-
-    # FamilyName mentions to Genes
-    for passage in paper.passages:
-        for annotation in passage.annotations:
-            if annotation.type == AnnotationType.FAMILY_NAME or annotation.type == AnnotationType.DOMAIN_MOTIF:
+            elif annotation.type == AnnotationType.FAMILY_NAME or annotation.type == AnnotationType.DOMAIN_MOTIF:
                 ids = family_name_tree.find_mention(annotation.text)
                 id_strs = ids.split('|')
                 res: List[str] = []
-                for ID in id_strs:
+                for ID in id_strs:  # type: str
                     if ID in gene_ids:
                         res.append(ID)
                 if len(res) != 0:
                     if annotation.type == AnnotationType.FAMILY_NAME:
                         annotation.type = AnnotationType.GENE
                     annotation.id = ';'.join(res)
-
-    # Clean * and (anti)
-    for passage in paper.passages:
-        for annotation in passage.annotations:
-            if annotation.type == AnnotationType.CELL:
+            elif annotation.type == AnnotationType.CELL and annotation.id:
                 annotation.id.replace('*', '')
                 annotation.id.replace('(anti)', '')

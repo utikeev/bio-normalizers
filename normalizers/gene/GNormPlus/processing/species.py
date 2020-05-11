@@ -3,7 +3,7 @@ from typing import List, Tuple, Dict, Set
 
 from nltk import tokenize
 
-from normalizers.gene.GNormPlus.models.paper import Paper, SpeciesAnnotation, SpeciesAnnotationPlacement
+from normalizers.gene.GNormPlus.models.paper import Paper, SpeciesAnnotation, SpeciesAnnotationPlacement, Passage, Species, Annotation
 
 HUMAN_ID = '9606'
 TaxonomyFrequency = Dict[str, float]
@@ -17,8 +17,8 @@ SENTENCE_TOKENIZER = tokenize.PunktSentenceTokenizer()
 def assign_species(paper: Paper, taxonomy_frequency: TaxonomyFrequency, human_viruses: HumanViruses,
                    gene_without_sp_prefix: GeneWithoutSpPrefix, prefix_map: PrefixMap):
     species_to_num_hash: Dict[str, float] = {}
-    for passage in paper.passages:
-        for species in passage.species:
+    for passage in paper.passages:  # type: Passage
+        for species in passage.species:  # type: Species
             match = re.match(r'\**([0-9]+)$', species.id)
             if match:
                 ID = match.group(1)
@@ -42,20 +42,20 @@ def assign_species(paper: Paper, taxonomy_frequency: TaxonomyFrequency, human_vi
 
     major_species = HUMAN_ID
     max_species = .0
-    for ID, freq in species_to_num_hash.items():
+    for ID, freq in species_to_num_hash.items():  # type: str, float
         if freq > max_species:
             major_species = ID
             max_species = freq
 
-    for passage in paper.passages:
+    for passage in paper.passages:  # type: Passage
         sentence_offsets: List[Tuple[int, int]] = list(SENTENCE_TOKENIZER.span_tokenize(passage.context))
 
-        for annotation in passage.annotations:
+        for annotation in passage.annotations:  # type: Annotation
             mention = annotation.text.split('|')[0]  # Only use the first term to detect species
 
             # Prefix
             if mention not in gene_without_sp_prefix:
-                for tax_id, prefix in prefix_map.items():
+                for tax_id, prefix in prefix_map.items():  # type: str, str
                     match = re.match(rf'^({prefix})([A-Z].*)$', mention)
                     if match:
                         mention_without_prefix = match.group(2)
@@ -63,18 +63,22 @@ def assign_species(paper: Paper, taxonomy_frequency: TaxonomyFrequency, human_vi
                         annotation.tax_id = SpeciesAnnotation(tax_id, SpeciesAnnotationPlacement.PREFIX)
                         break
 
+            if annotation.tax_id:
+                continue
+
             start = annotation.location.start
             end = annotation.location.end
 
             target_sentence = 0
-            for i, (s_start, s_end) in enumerate(sentence_offsets):
+            for i, (s_start, s_end) in enumerate(sentence_offsets):  # type: int, int, int
                 if s_start <= start <= s_end:
                     target_sentence = i
                     break
 
             s_start, s_end = sentence_offsets[target_sentence]
+            # Left
             closest_species_start = 0
-            for sp in passage.species:  # Left
+            for sp in passage.species:  # type: Species
                 sp_start = sp.location.start
                 match = re.match(r'\**([0-9]+)$', sp.id)
                 if match:
@@ -83,16 +87,21 @@ def assign_species(paper: Paper, taxonomy_frequency: TaxonomyFrequency, human_vi
                         closest_species_start = sp_start
                         annotation.tax_id = SpeciesAnnotation(tax_id, SpeciesAnnotationPlacement.LEFT)
 
-            if not annotation.tax_id:
-                closest_species_end = 1_000_000
-                for sp in passage.species:  # Right
-                    sp_end = sp.location.end
-                    match = re.match(r'\**([0-9]+)$', sp.id)
-                    if match:
-                        tax_id = match.group(1)
-                        if end <= sp_end <= s_end and sp_end < closest_species_end:
-                            closest_species_end = sp_end
-                            annotation.tax_id = SpeciesAnnotation(tax_id, SpeciesAnnotationPlacement.RIGHT)
-            # Co-occurring
-            if not annotation.tax_id:
-                annotation.tax_id = SpeciesAnnotation(major_species, SpeciesAnnotationPlacement.FOCUS)
+            if annotation.tax_id:
+                continue
+
+            # Right
+            closest_species_end = 1_000_000
+            for sp in passage.species:  # type: Species
+                sp_end = sp.location.end
+                match = re.match(r'\**([0-9]+)$', sp.id)
+                if match:
+                    tax_id = match.group(1)
+                    if end <= sp_end <= s_end and sp_end < closest_species_end:
+                        closest_species_end = sp_end
+                        annotation.tax_id = SpeciesAnnotation(tax_id, SpeciesAnnotationPlacement.RIGHT)
+
+            if annotation.tax_id:
+                continue
+
+            annotation.tax_id = SpeciesAnnotation(major_species, SpeciesAnnotationPlacement.FOCUS)

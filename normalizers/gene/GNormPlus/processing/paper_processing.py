@@ -1,8 +1,8 @@
 import re
 from typing import Dict
 
-from normalizers.gene.GNormPlus.models.paper import Paper, AnnotationType
-from normalizers.gene.GNormPlus.util.trees import PrefixTree
+from normalizers.gene.GNormPlus.models.paper import Paper, AnnotationType, Passage, Annotation
+from normalizers.gene.GNormPlus.util.trees import PrefixTree, FoundMention
 
 _CELL_SUFFIX = '(cell|cells)'
 _FAMILY_NAME_SUFFIX = '(disease|diseases|syndrome|syndromes|tumor|tumour|deficiency|dysgenesis|atrophy|frame|dystrophy|frame|factors|' \
@@ -15,8 +15,8 @@ _DEFAULT_BOUNDARY_LEN = 15
 def preprocess_paper(paper: Paper, chromosome_tree: PrefixTree):
     mention_to_type: Dict[str, AnnotationType] = {}
 
-    for passage in paper.passages:
-        for i, annotation in enumerate(passage.annotations):
+    for passage in paper.passages:  # type: Passage
+        for i, annotation in enumerate(passage.annotations):  # type: Annotation
             mention = annotation.text.lower()
             m_type = annotation.type
             end = annotation.location.end
@@ -78,7 +78,7 @@ def preprocess_paper(paper: Paper, chromosome_tree: PrefixTree):
 
         # Recognize chromosomes
         locations = chromosome_tree.search_mention_location(passage.context)
-        for location in locations:
+        for location in locations:  # type: FoundMention
             ids = re.split('r[|,]', location.concept)
             for ID in ids:
                 paper.chromosome_hash.add(ID)
