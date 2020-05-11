@@ -3,7 +3,7 @@ from typing import List, Tuple, Dict, Set
 
 from nltk import tokenize
 
-from normalizers.gene.GNormPlus.models.paper import Paper, SpeciesAnnotation, SpeciesAnnotationPlacement, Passage, Species, Annotation
+from normalizers.gene.GNormPlus.models.paper import Paper, SpeciesAnnotation, SpeciesAnnotationPlacement, Passage, Species, GeneAnnotation
 
 HUMAN_ID = '9606'
 TaxonomyFrequency = Dict[str, float]
@@ -50,8 +50,8 @@ def assign_species(paper: Paper, taxonomy_frequency: TaxonomyFrequency, human_vi
     for passage in paper.passages:  # type: Passage
         sentence_offsets: List[Tuple[int, int]] = list(SENTENCE_TOKENIZER.span_tokenize(passage.context))
 
-        for annotation in passage.annotations:  # type: Annotation
-            mention = annotation.text.split('|')[0]  # Only use the first term to detect species
+        for gene in passage.genes:  # type: GeneAnnotation
+            mention = gene.text.split('|')[0]  # Only use the first term to detect species
 
             # Prefix
             if mention not in gene_without_sp_prefix:
@@ -59,15 +59,15 @@ def assign_species(paper: Paper, taxonomy_frequency: TaxonomyFrequency, human_vi
                     match = re.match(rf'^({prefix})([A-Z].*)$', mention)
                     if match:
                         mention_without_prefix = match.group(2)
-                        annotation.text += f'|{mention_without_prefix}'
-                        annotation.tax_id = SpeciesAnnotation(tax_id, SpeciesAnnotationPlacement.PREFIX)
+                        gene.text += f'|{mention_without_prefix}'
+                        gene.tax_id = SpeciesAnnotation(tax_id, SpeciesAnnotationPlacement.PREFIX)
                         break
 
-            if annotation.tax_id:
+            if gene.tax_id:
                 continue
 
-            start = annotation.location.start
-            end = annotation.location.end
+            start = gene.location.start
+            end = gene.location.end
 
             target_sentence = 0
             for i, (s_start, s_end) in enumerate(sentence_offsets):  # type: int, int, int
@@ -85,9 +85,9 @@ def assign_species(paper: Paper, taxonomy_frequency: TaxonomyFrequency, human_vi
                     tax_id = match.group(1)
                     if start >= sp_start >= s_start and sp_start > closest_species_start:
                         closest_species_start = sp_start
-                        annotation.tax_id = SpeciesAnnotation(tax_id, SpeciesAnnotationPlacement.LEFT)
+                        gene.tax_id = SpeciesAnnotation(tax_id, SpeciesAnnotationPlacement.LEFT)
 
-            if annotation.tax_id:
+            if gene.tax_id:
                 continue
 
             # Right
@@ -99,9 +99,9 @@ def assign_species(paper: Paper, taxonomy_frequency: TaxonomyFrequency, human_vi
                     tax_id = match.group(1)
                     if end <= sp_end <= s_end and sp_end < closest_species_end:
                         closest_species_end = sp_end
-                        annotation.tax_id = SpeciesAnnotation(tax_id, SpeciesAnnotationPlacement.RIGHT)
+                        gene.tax_id = SpeciesAnnotation(tax_id, SpeciesAnnotationPlacement.RIGHT)
 
-            if annotation.tax_id:
+            if gene.tax_id:
                 continue
 
-            annotation.tax_id = SpeciesAnnotation(major_species, SpeciesAnnotationPlacement.FOCUS)
+            gene.tax_id = SpeciesAnnotation(major_species, SpeciesAnnotationPlacement.FOCUS)

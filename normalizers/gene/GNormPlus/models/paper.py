@@ -20,7 +20,7 @@ class Abbreviation:
         self.short_form = short_form
 
 
-class AnnotationType(Enum):
+class GeneType(Enum):
     GENE = 'GENE'
     CELL = 'CELL'
     FAMILY_NAME = 'FAMILY_NAME'
@@ -46,11 +46,11 @@ class SpeciesAnnotation:
         return str(self)
 
 
-class Annotation:
-    def __init__(self, location: Location, text: str, a_type: AnnotationType):
+class GeneAnnotation:
+    def __init__(self, location: Location, text: str):
         self.location = location
         self.text = text
-        self.type = a_type
+        self.type = GeneType.GENE
         self.tax_id: Optional[SpeciesAnnotation] = None
         self.id: Optional[str] = None
 
@@ -75,14 +75,14 @@ class Species:
 
 
 class Passage:
-    def __init__(self, name: str, context: str, annotations: List[Annotation], species: Optional[List[Species]] = None):
+    def __init__(self, name: str, context: str, genes: List[GeneAnnotation], species: Optional[List[Species]] = None):
         self.name = name
         self.context = context
-        self.annotations = annotations
+        self.genes = genes
         self.species: List[Species] = species or []
 
     def __str__(self):
-        return f'{self.name}\t{self.context}\t{" ".join([str(a) for a in self.annotations])}'
+        return f'{self.name}\t{self.context}\t{" ".join([str(a) for a in self.genes])}'
 
     def __repr__(self):
         return str(self)

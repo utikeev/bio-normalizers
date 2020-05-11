@@ -1,7 +1,7 @@
 import re
 from typing import Dict, Set, Optional, List, Tuple
 
-from normalizers.gene.GNormPlus.models.paper import Paper, AnnotationType, Passage, Annotation
+from normalizers.gene.GNormPlus.models.paper import Paper, GeneType, Passage, GeneAnnotation
 from normalizers.gene.GNormPlus.processing.scoring import score_function
 from normalizers.gene.GNormPlus.util.tokens import split_to_tokens
 from normalizers.gene.GNormPlus.util.trees import PrefixTree
@@ -19,32 +19,32 @@ MultiGeneToId = Dict[str, str]
 
 def fill_gene_mention_hash(paper: Paper, gene_mention_hash: GeneMentionHash, mention_hash: MentionHash, filtering: Filtering):
     for passage in paper.passages:  # type: Passage
-        for annotation in passage.annotations:  # type: Annotation
-            annotation: Annotation
-            start = annotation.location.start
-            end = annotation.location.end
-            mentions = annotation.text
-            m_type = annotation.type
-            tax_id = annotation.tax_id.id
+        for gene in passage.genes:  # type: GeneAnnotation
+            gene: GeneAnnotation
+            start = gene.location.start
+            end = gene.location.end
+            mentions = gene.text
+            m_type = gene.type
+            tax_id = gene.tax_id.id
 
             m_with_tax = f'{mentions}\t{tax_id}'
 
             # Filtering
             found_filter = False
             for item in filtering:  # type: str
-                if m_type == AnnotationType.GENE and (re.match(fr'.*\|{item}.*', mentions) or re.match(fr'.*{item}\|.*', mentions)):
+                if m_type == GeneType.GENE and (re.match(fr'.*\|{item}.*', mentions) or re.match(fr'.*{item}\|.*', mentions)):
                     found_filter = True
                     break
 
             if not found_filter:
-                if m_type == AnnotationType.GENE:
+                if m_type == GeneType.GENE:
                     if m_with_tax in gene_mention_hash:
                         gene_mention_hash[m_with_tax][f'{start}\t{end}'] = ''
                     else:
                         gene_mention_hash[m_with_tax] = {f'{start}\t{end}': ''}
                         gene_mention_hash[m_with_tax][TYPE_KEY] = m_type.value
                         mention_hash.add(mentions)
-                elif m_type == AnnotationType.FAMILY_NAME or m_type == AnnotationType.DOMAIN_MOTIF:
+                elif m_type == GeneType.FAMILY_NAME or m_type == GeneType.DOMAIN_MOTIF:
                     gms = mentions.split('|')
                     for g in gms:
                         mention_hash.add(g)
@@ -144,7 +144,7 @@ def remove_gmt(paper: Paper, gene_mention_hash: GeneMentionHash, gene_scoring: G
     gmts: List[str] = []
     for gene_mention_tax, hashes in gene_mention_hash.items():  # type: str, Dict[str, str]
         mentions, tax = gene_mention_tax.split('\t')  # type: str, str
-        if TYPE_KEY in hashes and ID_KEY in hashes and hashes[TYPE_KEY] == AnnotationType.GENE.value:
+        if TYPE_KEY in hashes and ID_KEY in hashes and hashes[TYPE_KEY] == GeneType.GENE.value:
             ID = hashes[ID_KEY]
             gene_id = ''
             match1 = re.match(r'^([0-9]+)-([0-9]+)$', ID)
@@ -189,24 +189,24 @@ def append_gene_ids(paper: Paper, gene_mention_hash: GeneMentionHash, family_nam
     # Append gene IDs
     gene_ids: Set[str] = set()
     for passage in paper.passages:  # type: Passage
-        for annotation in passage.annotations:  # type: Annotation
-            if annotation.type == AnnotationType.GENE:
-                m_with_tax = annotation.text + '\t' + annotation.tax_id.id
+        for gene in passage.genes:  # type: GeneAnnotation
+            if gene.type == GeneType.GENE:
+                m_with_tax = gene.text + '\t' + gene.tax_id.id
                 if m_with_tax in gene_mention_hash and ID_KEY in gene_mention_hash[m_with_tax]:
                     gene_id = gene_mention_hash[m_with_tax][ID_KEY]
-                    annotation.id = gene_id
+                    gene.id = gene_id
                     gene_ids.add(gene_id.split('-')[0])
-            elif annotation.type == AnnotationType.FAMILY_NAME or annotation.type == AnnotationType.DOMAIN_MOTIF:
-                ids = family_name_tree.find_mention(annotation.text)
+            elif gene.type == GeneType.FAMILY_NAME or gene.type == GeneType.DOMAIN_MOTIF:
+                ids = family_name_tree.find_mention(gene.text)
                 id_strs = ids.split('|')
                 res: List[str] = []
                 for ID in id_strs:  # type: str
                     if ID in gene_ids:
                         res.append(ID)
                 if len(res) != 0:
-                    if annotation.type == AnnotationType.FAMILY_NAME:
-                        annotation.type = AnnotationType.GENE
-                    annotation.id = ';'.join(res)
-            elif annotation.type == AnnotationType.CELL and annotation.id:
-                annotation.id.replace('*', '')
-                annotation.id.replace('(anti)', '')
+                    if gene.type == GeneType.FAMILY_NAME:
+                        gene.type = GeneType.GENE
+                    gene.id = ';'.join(res)
+            elif gene.type == GeneType.CELL and gene.id:
+                gene.id.replace('*', '')
+                gene.id.replace('(anti)', '')

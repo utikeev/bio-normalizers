@@ -1,7 +1,7 @@
 import re
 from typing import Dict
 
-from normalizers.gene.GNormPlus.models.paper import Paper, AnnotationType, Passage, Annotation
+from normalizers.gene.GNormPlus.models.paper import Paper, GeneType, Passage, GeneAnnotation
 from normalizers.gene.GNormPlus.util.trees import PrefixTree, FoundMention
 
 _CELL_SUFFIX = '(cell|cells)'
@@ -13,22 +13,22 @@ _DEFAULT_BOUNDARY_LEN = 15
 
 
 def preprocess_paper(paper: Paper, chromosome_tree: PrefixTree):
-    mention_to_type: Dict[str, AnnotationType] = {}
+    mention_to_type: Dict[str, GeneType] = {}
 
     for passage in paper.passages:  # type: Passage
-        for i, annotation in enumerate(passage.annotations):  # type: Annotation
-            mention = annotation.text.lower()
-            m_type = annotation.type
-            end = annotation.location.end
+        for i, gene in enumerate(passage.genes):  # type: GeneAnnotation
+            mention = gene.text.lower()
+            m_type = gene.type
+            end = gene.location.end
             trailing = passage.context[end: end + _DEFAULT_BOUNDARY_LEN]
 
             # Check suffix – Gene -> Family/Domain/Cell
             if re.match(f'.*{_CELL_SUFFIX}', mention) or re.match(_CELL_SUFFIX, trailing):
-                m_type = AnnotationType.CELL
+                m_type = GeneType.CELL
             elif re.match(f'.*{_FAMILY_NAME_SUFFIX}', mention) or re.match(_FAMILY_NAME_SUFFIX, trailing):
-                m_type = AnnotationType.FAMILY_NAME
+                m_type = GeneType.FAMILY_NAME
             elif re.match(f'.*{_DOMAIN_MOTIF_SUFFIX}', mention) or re.match(_DOMAIN_MOTIF_SUFFIX, trailing):
-                m_type = AnnotationType.DOMAIN_MOTIF
+                m_type = GeneType.DOMAIN_MOTIF
 
             # Abbreviation Resolution
             if mention in paper.abb_sf_to_lf:
@@ -36,20 +36,20 @@ def preprocess_paper(paper: Paper, chromosome_tree: PrefixTree):
                 if long_form in mention_to_type:
                     m_type = mention_to_type[long_form]
                 elif re.match(f'.*{_CELL_SUFFIX}', long_form):
-                    m_type = AnnotationType.CELL
+                    m_type = GeneType.CELL
                 elif re.match(f'.*{_FAMILY_NAME_SUFFIX}', long_form):
-                    m_type = AnnotationType.FAMILY_NAME
+                    m_type = GeneType.FAMILY_NAME
                 elif re.match(f'.*{_DOMAIN_MOTIF_SUFFIX}', long_form):
-                    m_type = AnnotationType.DOMAIN_MOTIF
+                    m_type = GeneType.DOMAIN_MOTIF
 
             mention_to_type[mention] = m_type
-            passage.annotations[i].type = m_type
+            passage.genes[i].type = m_type
 
-            if m_type != AnnotationType.GENE:
+            if m_type != GeneType.GENE:
                 continue
 
             # Normalization pre-processing
-            mention = annotation.text
+            mention = gene.text
             mtmp0 = re.match(r'^(.*[0-9A-Z])\s*p$', mention)
             mtmp1 = re.match('^(.+)nu$', mention)
             mtmp2 = re.match('^(.*)alpha(.*)$', mention)
@@ -74,7 +74,7 @@ def preprocess_paper(paper: Paper, chromosome_tree: PrefixTree):
                 mention += f'|{mtmp6.group(1)}2{mtmp6.group(2)}'
             if mtmp7:
                 mention += f'|{mtmp7.group(1)}3{mtmp7.group(2)}'
-            passage.annotations[i].text = mention
+            passage.genes[i].text = mention
 
         # Recognize chromosomes
         locations = chromosome_tree.search_mention_location(passage.context)
