@@ -46,8 +46,6 @@ class GNormPlus:
         self.config = config
         self.gene_without_sp_prefix: Set[str] = set()
         self.suffix_translation_map: Dict[str, str] = {}
-        self.genus_map: Dict[str, str] = {}
-        self.taxon_to_genus: Set[str] = set()
         self.prefix_map: Dict[str, str] = {}
         self.taxonomy_frequency: Dict[str, float] = {}
         self.human_viruses: Set[str] = set()
@@ -58,7 +56,6 @@ class GNormPlus:
         self.chromosome_tree = PrefixTree(self.suffix_translation_map)
         self.gene_tree = PrefixTree(self.suffix_translation_map)
         self.family_name_tree = PrefixTree(self.suffix_translation_map)
-
 
     @classmethod
     def default(cls) -> 'GNormPlus':
@@ -96,10 +93,6 @@ class GNormPlus:
                       message='Loading genes without special prefix')
         _process_file(self.config.suffix_translation_map_path, self._process_suffix_translation_map, verbose=verbose,
                       message='Loading suffix translation map')
-        _process_file(self.config.genus_id_map_path, self._process_genus_map, verbose=verbose,
-                      message='Loading genus map')
-        _process_file(self.config.taxonomy_id_for_genus_path, self._process_taxon_id_for_genus, verbose=verbose,
-                      message='Loading taxonomy id')
         _process_file(self.config.prefix_id_map_path, self._process_prefix_map, verbose=verbose,
                       message='Loading prefix map')
         _process_file(self.config.taxonomy_freq_map_path, self._process_taxonomy_frequency, verbose=verbose,
@@ -118,13 +111,6 @@ class GNormPlus:
     def _process_suffix_translation_map(self, line: str):
         parts: List[str] = line.split()
         self.suffix_translation_map[parts[0]] = parts[1]
-
-    def _process_genus_map(self, line: str):
-        parts: List[str] = line.split('\t')
-        self.genus_map[parts[0]] = parts[1]
-
-    def _process_taxon_id_for_genus(self, line: str):
-        self.taxon_to_genus.add(line)
 
     def _process_prefix_map(self, line: str):
         parts: List[str] = line.split('\t')
