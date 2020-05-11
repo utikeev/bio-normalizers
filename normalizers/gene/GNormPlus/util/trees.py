@@ -1,6 +1,8 @@
 import re
 from enum import Enum
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, NamedTuple
+
+from normalizers.gene.GNormPlus.util.tokens import split_to_tokens
 
 
 class PrefixTranslation(Enum):
@@ -93,6 +95,13 @@ MENTION_NOT_FOUND = '-3'
 _ROOT_NAME = '-ROOT-'
 
 
+class FoundMention(NamedTuple):
+    start: int
+    end: int
+    text: str
+    concept: str
+
+
 class PrefixTree:
     """Prefix tree of concepts.
 
@@ -115,7 +124,7 @@ class PrefixTree:
             concept (str):
                 Its concept ID.
         """
-        tokens = _split_to_tokens(mention)
+        tokens = split_to_tokens(mention)
         tmp: Node = self.root
         for i, token in enumerate(tokens):
             child_node = tmp.find_child(token)
@@ -155,21 +164,22 @@ class PrefixTree:
             while last_depth >= len(locations):
                 last_depth -= 1
                 tmp = tmp.parent
-            last_depth = len(locations) - 1
+            last_depth = len(locations)
             tmp = tmp.insert(token, concept)
 
-    def find_mention(self, mentions: List[str]) -> str:
-        """Returns first matching mention concept or one of the error concepts.
+    def find_mention(self, mention: str) -> str:
+        """Returns matching mention concept or one of the error concepts.
 
         Args:
-            mentions (List[str]):
-                List of aliases to find in tree.
+            mention (str):
+                Mention text.
 
         Returns:
-            Concept of the first matched mention.
+            Concept of the mention or error code.
         """
+        mentions = mention.split('|')
         for mention in mentions:
-            tokens = _split_to_tokens(mention)
+            tokens = split_to_tokens(mention)
             cnt = len(tokens)
             tmp: Optional[Node] = self.root
             found = -1
@@ -192,13 +202,105 @@ class PrefixTree:
 
         return MENTION_NOT_FOUND
 
+    def search_mention_location(self, context: str) -> List[FoundMention]:
+        locations: List[FoundMention] = []
+        lowered = context.lower()
 
-def _split_to_tokens(mention: str) -> List[str]:
-    mention = mention.lower()
-    mention = re.sub(r'([0-9])([a-z])', r'\1 \2', mention)
-    mention = re.sub(r'([a-z])([0-9])', r'\1 \2', mention)
-    mention = re.sub(r'[\W\-_]+', ' ', mention)
-    return mention.split()
+        tokens = split_to_tokens(context)
+        offset = 0
+        start = 0
+        last = 0
+        first_time = 0
+        for c in lowered:
+            if not c.isspace():
+                break
+            offset += 1
+        lowered.lstrip()
+        i = 0
+        while i < len(tokens):
+            pre_i = i
+            pre_start = start
+            pre_last = last
+            pre_lowered = lowered
+            pre_offset = offset
+
+            tmp = self.root
+            found = False
+            concept_found = i
+            concept_found_mention: Optional[FoundMention] = None
+            first_time_while = -1
+
+            while True:
+                token = tokens[i]
+                child = tmp.find_child(token, PrefixTranslation.NUMBER)
+                if child is None:
+                    break
+                tmp = child
+                first_time_while += 1
+                if start == 0 and first_time > 0:
+                    start = offset
+                if 0 < len(token) <= len(lowered) and lowered[0:len(token)] == token:
+                    lowered = lowered[len(token):]
+                    offset += len(token)
+
+                last = offset
+                for c in lowered:
+                    if not c.isspace():
+                        break
+                    offset += 1
+                lowered.lstrip()
+
+                i += 1
+                if tmp.concept and start < last < len(context):
+                    concept_found = i
+                    concept_found_mention = FoundMention(start, last, context[start:last], tmp.concept)
+                found = True
+                if i >= len(tokens):
+                    break
+                if first_time_while == 0:
+                    pre_i = i
+                    pre_start = start
+                    pre_last = last
+                    pre_lowered = lowered
+                    pre_offset = offset
+
+            if found:
+                if tmp.concept and start < last < len(context):
+                    locations.append(FoundMention(start, last, context[start:last], tmp.concept))
+                else:
+                    if concept_found_mention:
+                        locations.append(concept_found_mention)
+                        i = concept_found + 1
+                    if first_time_while >= 1:
+                        i = pre_i
+                        lowered = pre_lowered
+                        offset = pre_offset
+                    start = 0
+                    last = 0
+                    if i > 0:
+                        i -= 1
+            else:
+                if first_time_while >= 1 and tmp.concept is None:
+                    i = pre_i
+                    start = pre_start
+                    last = pre_last
+                    lowered = pre_lowered
+                    offset = pre_offset
+
+                    if 0 < len(token) <= len(lowered) and lowered[0:len(token)] == token:
+                        lowered = lowered[len(token):]
+                        offset += len(token)
+
+            for c in lowered:
+                if not c.isspace():
+                    break
+                offset += 1
+            lowered.lstrip()
+            first_time += 1
+
+            i += 1
+
+        return locations
 
 
 def _pretty_print(node: Node, depth: str) -> str:

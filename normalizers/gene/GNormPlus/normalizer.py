@@ -1,9 +1,14 @@
+import math
 from datetime import datetime
-from typing import Set, Dict, List, Callable
+from typing import Set, Dict, List, Callable, Tuple
 
 from tqdm import tqdm
 
 from normalizers.gene.GNormPlus.config import GNormPlusConfig
+from normalizers.gene.GNormPlus.models.paper import Paper
+from normalizers.gene.GNormPlus.processing.normalization import fill_gene_mention_hash, find_in_gene_tree, infer_multiple_genes, \
+    process_abbreviations, rank_by_score_function, remove_gmt, append_gene_ids
+from normalizers.gene.GNormPlus.processing.paper_processing import preprocess_paper
 from normalizers.gene.GNormPlus.util.trees import PrefixTree
 
 
@@ -13,9 +18,8 @@ def _process_file(path: str, process_fn: Callable[[str], None], *, verbose: bool
         if verbose:
             lines = tqdm(lines, message)
         for line in lines:
-            stripped = line.strip()
-            if stripped != '':
-                process_fn(stripped)
+            if line.strip():
+                process_fn(line)
 
 
 def _process_tree(path: str, tree: PrefixTree, *, verbose: bool = False, message: str = ''):
@@ -35,43 +39,24 @@ class GNormPlus:
     Attributes:
         config (GNormPlusConfig):
             Config for normalizer.
-        gene_without_sp_prefix (Set[str]):
-            TODO
-        suffix_translation_map (Dict[str, str]):
-            TODO
-        genus_map (Dict[str, str]):
-            TODO
-        taxon_to_genus (Set[str]):
-            TODO
-        prefix_map (Dict[str, str]):
-            TODO
-        taxonomy_frequency (Dict[str, float]):
-            TODO
-        human_viruses (Set[str]):
-            TODO
-        gene_map (Dict[str, str]):
-            TODO
-        gene_to_protein (Dict[str, str]):
-            TODO
-        gene_to_homoid (Dict[str, str]):
-            TODO
     """
 
     def __init__(self, config: GNormPlusConfig):
         self.config = config
         self.gene_without_sp_prefix: Set[str] = set()
-        self.suffix_translation_map: Dict[str, str] = dict()
-        self.genus_map: Dict[str, str] = dict()
+        self.suffix_translation_map: Dict[str, str] = {}
+        self.genus_map: Dict[str, str] = {}
         self.taxon_to_genus: Set[str] = set()
-        self.prefix_map: Dict[str, str] = dict()
-        self.taxonomy_frequency: Dict[str, float] = dict()
+        self.prefix_map: Dict[str, str] = {}
+        self.taxonomy_frequency: Dict[str, float] = {}
         self.human_viruses: Set[str] = set()
-        self.gene_map: Dict[str, str] = dict()
-        self.gene_to_protein: Dict[str, str] = dict()
-        self.gene_to_homoid: Dict[str, str] = dict()
+        self.filtering: Set[str] = set()
+        self.gene_scoring: Dict[str, Tuple[str, int]] = {}
+        self.gene_scoring_df: Dict[str, float] = {}
 
-        self.species_tree = PrefixTree(self.suffix_translation_map)
-        self.cell_tree = PrefixTree(self.suffix_translation_map)
+        self.chromosome_tree = PrefixTree(self.suffix_translation_map)
+        self.gene_tree = PrefixTree(self.suffix_translation_map)
+        self.family_name_tree = PrefixTree(self.suffix_translation_map)
 
     @classmethod
     def default(cls) -> 'GNormPlus':
@@ -93,15 +78,22 @@ class GNormPlus:
 
         if verbose:
             print(f'Loading dictionaries…')
+        _process_tree(self.config.gene_tree_path, self.gene_tree, verbose=verbose,
+                      message='Loading gene tree')
+        _process_file(self.config.gene_scoring_path, self._process_gene_scoring, verbose=verbose,
+                      message='Loading gene scorings')
+        _process_file(self.config.gene_scoring_df_path, self._process_gene_scoring_df, verbose=verbose,
+                      message='Loading gene scorings DF')
+
+        _process_tree(self.config.chromosome_tree_path, self.chromosome_tree, verbose=verbose,
+                      message='Loading chromosome tree')
+        _process_tree(self.config.family_name_tree_path, self.family_name_tree, verbose=verbose,
+                      message='Loading family name tree')
 
         _process_file(self.config.gene_without_sp_prefix_path, self._process_gene_without_sp_prefix, verbose=verbose,
                       message='Loading genes without special prefix')
         _process_file(self.config.suffix_translation_map_path, self._process_suffix_translation_map, verbose=verbose,
                       message='Loading suffix translation map')
-        # _process_tree(self.config.species_tree_path, self.species_tree, verbose=verbose,
-        #               message='Loading species tree')
-        _process_tree(self.config.cell_tree_path, self.cell_tree, verbose=verbose,
-                      message='Loading cell tree')
         _process_file(self.config.genus_id_map_path, self._process_genus_map, verbose=verbose,
                       message='Loading genus map')
         _process_file(self.config.taxonomy_id_for_genus_path, self._process_taxon_id_for_genus, verbose=verbose,
@@ -112,12 +104,8 @@ class GNormPlus:
                       message='Loading taxonomy frequency')
         _process_file(self.config.virus_human_list_path, self._process_virus_to_human, verbose=verbose,
                       message='Loading human virus list')
-        _process_file(self.config.gene_id_map_path, self._process_gene_id, verbose=verbose,
-                      message='Loading gene IDs')
-        _process_file(self.config.gene_to_protein_map_path, self._process_normalization_to_protein, verbose=verbose,
-                      message='Loading gene to protein map')
-        _process_file(self.config.gene_to_homoid_map_path, self._process_homologene, verbose=verbose,
-                      message='Loading gene to homoid map')
+        _process_file(self.config.filtering_path, self._process_filtering, verbose=verbose,
+                      message='Loading filtering')
 
         if verbose:
             print(f'Dictionaries loading took {datetime.now() - start_time}s')
@@ -147,14 +135,33 @@ class GNormPlus:
     def _process_virus_to_human(self, line: str):
         self.human_viruses.add(line)
 
-    def _process_gene_id(self, line: str):
-        parts: List[str] = line.split('\t')
-        self.gene_map[parts[0]] = parts[1]
+    def _process_filtering(self, line: str):
+        self.filtering.add(line)
 
-    def _process_normalization_to_protein(self, line: str):
+    def _process_gene_scoring(self, line: str):
         parts: List[str] = line.split('\t')
-        self.gene_to_protein[parts[0]] = parts[1]
+        self.gene_scoring[parts[0]] = (parts[1], int(parts[3]))
+        
+    def _process_gene_scoring_df(self, line: str):
+        parts: List[str] = line.split('\t')
+        if len(parts) == 1:
+            self.gene_scoring_df_sum = float(line)
+        else:
+            count = float(parts[1])
+            if count != .0:
+                self.gene_scoring_df[parts[0]] = math.log10(self.gene_scoring_df_sum / count)
 
-    def _process_homologene(self, line: str):
-        parts: List[str] = line.split('\t')
-        self.gene_to_homoid[parts[0]] = parts[1]
+    def normalize(self, paper: Paper):
+        gene_mention_hash: Dict[str, Dict[str, str]] = {}
+        mention_hash: Set[str] = set()
+        guaranteed_gene_to_id: Dict[str, str] = {}
+        multi_gene_to_id: Dict[str, str] = {}
+
+        preprocess_paper(paper, self.chromosome_tree)
+        fill_gene_mention_hash(paper, gene_mention_hash, mention_hash, self.filtering)
+        find_in_gene_tree(paper, guaranteed_gene_to_id, multi_gene_to_id, self.gene_tree, gene_mention_hash)
+        infer_multiple_genes(guaranteed_gene_to_id, multi_gene_to_id, gene_mention_hash)
+        process_abbreviations(paper, gene_mention_hash)
+        rank_by_score_function(paper, gene_mention_hash, mention_hash, self.gene_scoring, self.gene_scoring_df)
+        remove_gmt(paper, gene_mention_hash, self.gene_scoring)
+        append_gene_ids(paper, gene_mention_hash, self.family_name_tree)

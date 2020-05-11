@@ -1,7 +1,13 @@
 py_library(
     name = 'GNormPlus',
+    visibility = ['//visibility:public'],
+    imports = ['../../..'],
     srcs = glob(['*.py']),
-    deps = ['//normalizers/gene/GNormPlus/util'],
+    deps = [
+        '//normalizers/gene/GNormPlus/models',
+        '//normalizers/gene/GNormPlus/processing',
+        '//normalizers/gene/GNormPlus/util'
+    ],
 )
 
 py_binary(

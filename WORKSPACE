@@ -1,1 +1,1 @@
-workspace(name = 'bio_normalizers')
+workspace(name = 'normalizers')

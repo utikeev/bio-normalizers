@@ -12,16 +12,6 @@ class GNormPlusConfig(NamedTuple):
     Is used for creation of :class:`normalizers.gene.GNormPlus.normalizer.GNormPlus` normalizer.
 
     Args:
-        focus_species (:obj:`str`, optional, defaults to 'all'):
-            ID of species
-        gene_id_match (:obj:`bool`, optional, defaults to :obj:`True`):
-            Whether to match genes to their IDs
-        normalization_to_protein (:obj:`bool`, optional, defaults to :obj:`False`):
-            TODO
-        homologene_id  (:obj:`bool`, optional, defaults to :obj:`False`):
-            TODO
-        show_unnormalized_mention  (:obj:`bool`, optional, defaults to :obj:`False`):
-            TODO
         gene_without_sp_prefix_path (:obj:`str`, optional):
             TODO
         suffix_translation_map_path (:obj:`str`, optional):
@@ -36,6 +26,12 @@ class GNormPlusConfig(NamedTuple):
             TODO
         virus_human_list_path (:obj:`str`, optional):
             TODO
+        filtering_path (:obj:`str`, optional):
+            TODO
+        gene_scoring_path (:obj:`str`, optional):
+            TODO
+        gene_scoring_df_path (:obj:`str`, optional):
+            TODO
         gene_id_map_path (:obj:`str`, optional):
             TODO
         gene_to_protein_map_path (:obj:`str`, optional):
@@ -46,13 +42,11 @@ class GNormPlusConfig(NamedTuple):
             TODO
         cell_tree_path (:obj:`str`, optional):
             TODO
+        chromosome_tree_path (:obj:`str`, optional):
+            TODO
+        family_name_tree_path (:obj:`str`, optional):
+            TODO
     """
-    focus_species: str = 'all'
-    gene_id_match: bool = True
-    normalization_to_protein: bool = False
-    homologene_id: bool = False
-    show_unnormalized_mention: bool = False
-
     gene_without_sp_prefix_path: str = join(DATA_PATH, 'GeneWithoutSPPrefix.txt')
     suffix_translation_map_path: str = join(DATA_PATH, 'SuffixTranslationMap.txt')
     genus_id_map_path: str = join(DATA_PATH, 'SPGenus.txt')
@@ -60,10 +54,14 @@ class GNormPlusConfig(NamedTuple):
     prefix_id_map_path: str = join(DATA_PATH, 'SPPrefix.txt')
     taxonomy_freq_map_path: str = join(DATA_PATH, 'TaxonomyFrequency.txt')
     virus_human_list_path: str = join(DATA_PATH, 'SP_Virus2HumanList.txt')
+    filtering_path: str = join(DATA_PATH, 'Filtering.txt')
+    gene_scoring_path: str = join(DATA_PATH, 'GeneScoring.txt')
+    gene_scoring_df_path: str = join(DATA_PATH, 'GeneScoring.DF.txt')
 
     gene_id_map_path: str = join(DATA_PATH, 'GeneIDs.txt')
     gene_to_protein_map_path: str = join(DATA_PATH, 'Gene2Protein.txt')
     gene_to_homoid_map_path: str = join(DATA_PATH, 'Gene2Homoid.txt')
 
-    species_tree_path: str = join(TREES_PATH, 'PT_NewSpecies.txt')
-    cell_tree_path: str = join(TREES_PATH, 'PT_Cell.txt')
+    chromosome_tree_path: str = join(TREES_PATH, 'PT_GeneChromosome.txt')
+    gene_tree_path: str = join(TREES_PATH, 'PT_Gene.txt')
+    family_name_tree_path: str = join(TREES_PATH, 'PT_FamilyName.txt')
