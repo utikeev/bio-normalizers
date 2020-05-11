@@ -2,6 +2,8 @@ import re
 from typing import Dict
 
 from normalizers.gene.GNormPlus.models.paper import Paper, GeneType, Passage, GeneAnnotation
+from normalizers.gene.GNormPlus.util.re_patterns import PREPROCESS_PATTERN0, PREPROCESS_PATTERN1, PREPROCESS_PATTERN2, PREPROCESS_PATTERN3, \
+    PREPROCESS_PATTERN4, PREPROCESS_PATTERN5, PREPROCESS_PATTERN6, PREPROCESS_PATTERN7
 from normalizers.gene.GNormPlus.util.trees import PrefixTree, FoundMention
 
 _CELL_SUFFIX = '(cell|cells)'
@@ -16,10 +18,10 @@ def preprocess_paper(paper: Paper, chromosome_tree: PrefixTree):
     mention_to_type: Dict[str, GeneType] = {}
 
     for passage in paper.passages:  # type: Passage
-        for i, gene in enumerate(passage.genes):  # type: GeneAnnotation
-            mention = gene.text.lower()
-            m_type = gene.type
-            end = gene.location.end
+        for i, annotation in enumerate(passage.genes):  # type: GeneAnnotation
+            mention = annotation.text.lower()
+            m_type = annotation.type
+            end = annotation.location.end
             trailing = passage.context[end: end + _DEFAULT_BOUNDARY_LEN]
 
             # Check suffix – Gene -> Family/Domain/Cell
@@ -49,15 +51,15 @@ def preprocess_paper(paper: Paper, chromosome_tree: PrefixTree):
                 continue
 
             # Normalization pre-processing
-            mention = gene.text
-            mtmp0 = re.match(r'^(.*[0-9A-Z])\s*p$', mention)
-            mtmp1 = re.match('^(.+)nu$', mention)
-            mtmp2 = re.match('^(.*)alpha(.*)$', mention)
-            mtmp3 = re.match('^(.*)beta(.*)$', mention)
-            mtmp4 = re.match('^(.+[0-9])a$', mention)
-            mtmp5 = re.match('^(.+[0-9])b$', mention)
-            mtmp6 = re.match('^(.+)II([a-z])$', mention)
-            mtmp7 = re.match('^(.+)III([a-z])$', mention)
+            mention = annotation.text
+            mtmp0 = re.match(PREPROCESS_PATTERN0, mention)
+            mtmp1 = re.match(PREPROCESS_PATTERN1, mention)
+            mtmp2 = re.match(PREPROCESS_PATTERN2, mention)
+            mtmp3 = re.match(PREPROCESS_PATTERN3, mention)
+            mtmp4 = re.match(PREPROCESS_PATTERN4, mention)
+            mtmp5 = re.match(PREPROCESS_PATTERN5, mention)
+            mtmp6 = re.match(PREPROCESS_PATTERN6, mention)
+            mtmp7 = re.match(PREPROCESS_PATTERN7, mention)
             if mtmp0:
                 mention += f'|{mtmp0.group(1)}'
             if mtmp1:

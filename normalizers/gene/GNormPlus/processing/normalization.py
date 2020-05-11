@@ -1,8 +1,10 @@
 import re
-from typing import Dict, Set, Optional, List, Tuple
+from typing import Dict, Set, Optional, List, Tuple, Pattern
 
 from normalizers.gene.GNormPlus.models.paper import Paper, GeneType, Passage, GeneAnnotation
 from normalizers.gene.GNormPlus.processing.scoring import score_function
+from normalizers.gene.GNormPlus.util.re_patterns import SINGLE_GENE_PATTERN, MULTI_GENE_PATTERN, GENE_GMT_PATTERN, HOMO_GMT_PATTERN, \
+    NUMBER_PATTERN
 from normalizers.gene.GNormPlus.util.tokens import split_to_tokens
 from normalizers.gene.GNormPlus.util.trees import PrefixTree
 
@@ -10,7 +12,7 @@ ID_KEY = 'ID'
 TYPE_KEY = 'type'
 GeneMentionHash = Dict[str, Dict[str, str]]
 MentionHash = Set[str]
-Filtering = Set[str]
+Filtering = Set[Pattern[str]]
 GeneScoring = Dict[str, Tuple[str, int]]
 GeneScoringDF = Dict[str, float]
 GuaranteedGeneToID = Dict[str, str]
@@ -31,8 +33,8 @@ def fill_gene_mention_hash(paper: Paper, gene_mention_hash: GeneMentionHash, men
 
             # Filtering
             found_filter = False
-            for item in filtering:  # type: str
-                if m_type == GeneType.GENE and (re.match(fr'.*\|{item}$', mentions) or re.match(fr'^{item}\|.*', mentions)):
+            for item in filtering:  # type: Pattern[str]
+                if m_type == GeneType.GENE and re.match(item, mentions):
                     found_filter = True
                     break
 
@@ -71,11 +73,11 @@ def find_in_gene_tree(paper: Paper, guaranteed_gene_to_id: GuaranteedGeneToID, m
             # Gene ID refinement
             if ID_KEY in hashes:
                 gene_id = hashes[ID_KEY]
-                match = re.match(r'\*([0-9]+(-[0-9]+))', gene_id)
+                match = re.match(MULTI_GENE_PATTERN, gene_id)
                 if match:  # Official name
                     hashes[ID_KEY] = match.group(1)
                     guaranteed_gene_to_id[gene_mention_tax] = match.group(1)
-                elif re.match(r'[0-9]+(-[0-9]+)', gene_id):  # Only one gene
+                elif re.match(SINGLE_GENE_PATTERN, gene_id):  # Only one gene
                     guaranteed_gene_to_id[gene_mention_tax] = gene_id
                 else:  # Chromosome location
                     ids = gene_id.split(',')
@@ -147,8 +149,8 @@ def remove_gmt(paper: Paper, gene_mention_hash: GeneMentionHash, gene_scoring: G
         if TYPE_KEY in hashes and ID_KEY in hashes and hashes[TYPE_KEY] == GeneType.GENE.value:
             ID = hashes[ID_KEY]
             gene_id = ''
-            match1 = re.match(r'^([0-9]+)-([0-9]+)$', ID)
-            match2 = re.match(r'^([0-9]+)$', ID)
+            match1 = re.match(HOMO_GMT_PATTERN, ID)
+            match2 = re.match(GENE_GMT_PATTERN, ID)
             if match1:
                 gene_id = 'Homo:' + match1.group(2)
             elif match2:
@@ -168,7 +170,7 @@ def remove_gmt(paper: Paper, gene_mention_hash: GeneMentionHash, gene_scoring: G
                     lf_tokens = split_to_tokens(lf_lower)
                     for word in token_lexicon:  # type: str
                         for mention in lf_tokens:  # type: str
-                            if word == mention and not re.match('[0-9]+', mention):
+                            if word == mention and not re.match(NUMBER_PATTERN, mention):
                                 lf_token_match = True
                 else:
                     lf_exist = False

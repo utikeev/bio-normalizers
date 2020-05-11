@@ -1,6 +1,7 @@
 import math
+import re
 from datetime import datetime
-from typing import Set, Dict, List, Callable, Tuple
+from typing import Set, Dict, List, Callable, Tuple, Pattern
 
 from tqdm import tqdm
 
@@ -47,10 +48,10 @@ class GNormPlus:
         self.config = config
         self.gene_without_sp_prefix: Set[str] = set()
         self.suffix_translation_map: Dict[str, str] = {}
-        self.prefix_map: Dict[str, str] = {}
+        self.prefix_map: Dict[str, Pattern[str]] = {}
         self.taxonomy_frequency: Dict[str, float] = {}
         self.human_viruses: Set[str] = set()
-        self.filtering: Set[str] = set()
+        self.filtering: Set[Pattern[str]] = set()
         self.gene_scoring: Dict[str, Tuple[str, int]] = {}
         self.gene_scoring_df: Dict[str, float] = {}
 
@@ -115,7 +116,7 @@ class GNormPlus:
 
     def _process_prefix_map(self, line: str):
         parts: List[str] = line.split('\t')
-        self.prefix_map[parts[0]] = parts[1]
+        self.prefix_map[parts[0]] = re.compile(rf'^({parts[1]})([A-Z].*)$')
 
     def _process_taxonomy_frequency(self, line: str):
         parts: List[str] = line.split('\t')
@@ -125,7 +126,8 @@ class GNormPlus:
         self.human_viruses.add(line)
 
     def _process_filtering(self, line: str):
-        self.filtering.add(line)
+        self.filtering.add(re.compile(fr'.*\|{line}$'))
+        self.filtering.add(re.compile(fr'^{line}\|.*'))
 
     def _process_gene_scoring(self, line: str):
         parts: List[str] = line.split('\t')

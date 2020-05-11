@@ -1,15 +1,16 @@
 import re
-from typing import List, Tuple, Dict, Set
+from typing import List, Tuple, Dict, Set, Pattern
 
 from nltk import tokenize
 
 from normalizers.gene.GNormPlus.models.paper import Paper, SpeciesAnnotation, SpeciesAnnotationPlacement, Passage, Species, GeneAnnotation
+from normalizers.gene.GNormPlus.util.re_patterns import SPECIES_PATTERN
 
 HUMAN_ID = '9606'
 TaxonomyFrequency = Dict[str, float]
 HumanViruses = Set[str]
 GeneWithoutSpPrefix = Set[str]
-PrefixMap = Dict[str, str]
+PrefixMap = Dict[str, Pattern[str]]
 
 SENTENCE_TOKENIZER = tokenize.PunktSentenceTokenizer()
 
@@ -19,7 +20,7 @@ def assign_species(paper: Paper, taxonomy_frequency: TaxonomyFrequency, human_vi
     species_to_num_hash: Dict[str, float] = {}
     for passage in paper.passages:  # type: Passage
         for species in passage.species:  # type: Species
-            match = re.match(r'\**([0-9]+)$', species.id)
+            match = re.match(SPECIES_PATTERN, species.id)
             if match:
                 ID = match.group(1)
                 weight = 1.0
@@ -55,8 +56,8 @@ def assign_species(paper: Paper, taxonomy_frequency: TaxonomyFrequency, human_vi
 
             # Prefix
             if mention not in gene_without_sp_prefix:
-                for tax_id, prefix in prefix_map.items():  # type: str, str
-                    match = re.match(rf'^({prefix})([A-Z].*)$', mention)
+                for tax_id, prefix_pattern in prefix_map.items():  # type: str, Pattern[str]
+                    match = re.match(prefix_pattern, mention)
                     if match:
                         mention_without_prefix = match.group(2)
                         gene.text += f'|{mention_without_prefix}'
@@ -80,7 +81,7 @@ def assign_species(paper: Paper, taxonomy_frequency: TaxonomyFrequency, human_vi
             closest_species_start = 0
             for sp in passage.species:  # type: Species
                 sp_start = sp.location.start
-                match = re.match(r'\**([0-9]+)$', sp.id)
+                match = re.match(SPECIES_PATTERN, sp.id)
                 if match:
                     tax_id = match.group(1)
                     if start >= sp_start >= s_start and sp_start > closest_species_start:
@@ -94,7 +95,7 @@ def assign_species(paper: Paper, taxonomy_frequency: TaxonomyFrequency, human_vi
             closest_species_end = 1_000_000
             for sp in passage.species:  # type: Species
                 sp_end = sp.location.end
-                match = re.match(r'\**([0-9]+)$', sp.id)
+                match = re.match(SPECIES_PATTERN, sp.id)
                 if match:
                     tax_id = match.group(1)
                     if end <= sp_end <= s_end and sp_end < closest_species_end:

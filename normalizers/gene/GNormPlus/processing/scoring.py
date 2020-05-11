@@ -1,6 +1,7 @@
 import re
 from typing import Dict, Set, Tuple
 
+from normalizers.gene.GNormPlus.util.re_patterns import SCORE_PATTERN
 from normalizers.gene.GNormPlus.util.tokens import split_to_tokens
 
 
@@ -9,7 +10,7 @@ def score_function(gene_id: str, mention_hash: Set[str], long_form: str, scoring
     lf_tokens = split_to_tokens(long_form)
     lf_partial_match = 0
 
-    match = re.match('[0-9]+-([0-9]+)', gene_id)
+    match = re.match(SCORE_PATTERN, gene_id)
     if match:
         gene_id = 'Homo:' + match.group(1)
     else:

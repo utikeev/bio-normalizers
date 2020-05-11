@@ -80,9 +80,9 @@ class Node:
             if token in self.suffix_translation_map and self.suffix_translation_map[token] in self.children:
                 return self.children[self.suffix_translation_map[token]]
 
-        elif prefix_translation == PrefixTranslation.NUMBER and re.match(r'\d*', token):
+        elif prefix_translation == PrefixTranslation.NUMBER and re.match(r'\d+', token):
             for entry in self.children.values():
-                if re.match(r'\d*', entry.token):
+                if re.match(r'\d+', entry.token):
                     return entry
 
         return None
