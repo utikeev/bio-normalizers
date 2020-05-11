@@ -9,6 +9,7 @@ from normalizers.gene.GNormPlus.models.paper import Paper
 from normalizers.gene.GNormPlus.processing.normalization import fill_gene_mention_hash, find_in_gene_tree, infer_multiple_genes, \
     process_abbreviations, rank_by_score_function, remove_gmt, append_gene_ids
 from normalizers.gene.GNormPlus.processing.paper_processing import preprocess_paper
+from normalizers.gene.GNormPlus.processing.species import assign_species
 from normalizers.gene.GNormPlus.util.trees import PrefixTree
 
 
@@ -57,6 +58,7 @@ class GNormPlus:
         self.chromosome_tree = PrefixTree(self.suffix_translation_map)
         self.gene_tree = PrefixTree(self.suffix_translation_map)
         self.family_name_tree = PrefixTree(self.suffix_translation_map)
+
 
     @classmethod
     def default(cls) -> 'GNormPlus':
@@ -141,7 +143,7 @@ class GNormPlus:
     def _process_gene_scoring(self, line: str):
         parts: List[str] = line.split('\t')
         self.gene_scoring[parts[0]] = (parts[1], int(parts[3]))
-        
+
     def _process_gene_scoring_df(self, line: str):
         parts: List[str] = line.split('\t')
         if len(parts) == 1:
@@ -158,6 +160,7 @@ class GNormPlus:
         multi_gene_to_id: Dict[str, str] = {}
 
         preprocess_paper(paper, self.chromosome_tree)
+        assign_species(paper, self.taxonomy_frequency, self.human_viruses, self.gene_without_sp_prefix, self.prefix_map)
         fill_gene_mention_hash(paper, gene_mention_hash, mention_hash, self.filtering)
         find_in_gene_tree(paper, guaranteed_gene_to_id, multi_gene_to_id, self.gene_tree, gene_mention_hash)
         infer_multiple_genes(guaranteed_gene_to_id, multi_gene_to_id, gene_mention_hash)

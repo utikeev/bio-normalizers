@@ -26,7 +26,7 @@ def fill_gene_mention_hash(paper: Paper, gene_mention_hash: GeneMentionHash, men
             m_type = annotation.type
             tax_id = annotation.tax_id
 
-            m_with_tax = f'{mentions}\t{tax_id}'
+            m_with_tax = f'{mentions}\t{tax_id.id}'
 
             # Filtering
             found_filter = False
@@ -190,7 +190,7 @@ def append_gene_ids(paper: Paper, gene_mention_hash: GeneMentionHash, family_nam
     for passage in paper.passages:
         for annotation in passage.annotations:
             if annotation.type == AnnotationType.GENE:
-                m_with_tax = annotation.text + '\t' + annotation.tax_id
+                m_with_tax = annotation.text + '\t' + annotation.tax_id.id
                 if m_with_tax in gene_mention_hash and ID_KEY in gene_mention_hash[m_with_tax]:
                     gene_id = gene_mention_hash[m_with_tax][ID_KEY]
                     annotation.id = gene_id

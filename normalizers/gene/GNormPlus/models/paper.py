@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 
 class Location:
@@ -27,14 +27,32 @@ class AnnotationType(Enum):
     DOMAIN_MOTIF = 'DOMAIN_MOTIF'
 
 
+class SpeciesAnnotationPlacement:
+    FOCUS = 'Focus'
+    RIGHT = 'Right'
+    LEFT = 'Left'
+    PREFIX = 'Prefix'
+
+
+class SpeciesAnnotation:
+    def __init__(self, s_id: str, placement: SpeciesAnnotationPlacement):
+        self.id = s_id
+        self.placement = placement
+
+    def __str__(self):
+        return f'{self.placement}: {self.id}'
+
+    def __repr__(self):
+        return str(self)
+
+
 class Annotation:
     def __init__(self, location: Location, text: str, a_type: AnnotationType):
         self.location = location
         self.text = text
         self.type = a_type
-        # TODO: assign species
-        self.tax_id = '9606'
-        self.id = None
+        self.tax_id: Optional[SpeciesAnnotation] = None
+        self.id: Optional[str] = None
 
     def __str__(self):
         return f'{self.location}\t{self.text}\t{self.type}\t{self.tax_id}\t{self.id}'
@@ -43,11 +61,25 @@ class Annotation:
         return str(self)
 
 
+class Species:
+    def __init__(self, location: Location, text: str, s_id: str):
+        self.location = location
+        self.text = text
+        self.id = s_id
+
+    def __str__(self):
+        return f'{self.location}\t{self.text}\t{self.id}'
+
+    def __repr__(self):
+        return str(self)
+
+
 class Passage:
-    def __init__(self, name: str, context: str, annotations: List[Annotation]):
+    def __init__(self, name: str, context: str, annotations: List[Annotation], species: Optional[List[Species]] = None):
         self.name = name
         self.context = context
         self.annotations = annotations
+        self.species: List[Species] = species or []
 
     def __str__(self):
         return f'{self.name}\t{self.context}\t{" ".join([str(a) for a in self.annotations])}'
