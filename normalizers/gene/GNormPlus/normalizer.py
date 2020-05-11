@@ -19,8 +19,9 @@ def _process_file(path: str, process_fn: Callable[[str], None], *, verbose: bool
         if verbose:
             lines = tqdm(lines, message)
         for line in lines:
-            if line.strip():
-                process_fn(line)
+            stripped = line.strip()
+            if stripped:
+                process_fn(stripped)
 
 
 def _process_tree(path: str, tree: PrefixTree, *, verbose: bool = False, message: str = ''):

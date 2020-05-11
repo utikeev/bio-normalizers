@@ -157,7 +157,7 @@ class PrefixTree:
         last_depth = 0
         tmp: Node = self.root
         for line in lines:
-            parts = line.split('\t')
+            parts = line.strip().split('\t')
             locations = parts[0].split('-')
             token = parts[1]
             concept = parts[2] if len(parts) == 3 else ''

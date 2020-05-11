@@ -4,7 +4,7 @@ from typing import Dict, Set, Tuple
 from normalizers.gene.GNormPlus.util.tokens import split_to_tokens
 
 
-def score_function(gene_id: str, mention_hash: Set[str], long_form: str, scoring_hash: Dict[str, Tuple[str,int]],
+def score_function(gene_id: str, mention_hash: Set[str], long_form: str, scoring_hash: Dict[str, Tuple[str, int]],
                    scoring_df: Dict[str, float]) -> float:
     lf_tokens = split_to_tokens(long_form)
     lf_partial_match = 0
@@ -37,9 +37,9 @@ def score_function(gene_id: str, mention_hash: Set[str], long_form: str, scoring
                 if lf_token == token:
                     lf_partial_match += 1
 
-            tf_i_j = freq / scoring[1]
-            id_fi = scoring_df[token]
-            score += tf_i_j * id_fi * (1.0 / (1.0 - tf_i_j))
+            if token in scoring_df:
+                tf_i_j = freq / scoring[1]
+                score += tf_i_j * scoring_df[token] * (1.0 / (1.0 - tf_i_j))
 
         if lf_partial_match > 0:
             score += lf_partial_match
