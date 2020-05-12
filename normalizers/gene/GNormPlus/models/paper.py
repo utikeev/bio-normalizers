@@ -32,6 +32,7 @@ class SpeciesAnnotationPlacement:
     RIGHT = 'Right'
     LEFT = 'Left'
     PREFIX = 'Prefix'
+    FALLBACK = 'Fallback'
 
 
 class SpeciesAnnotation:

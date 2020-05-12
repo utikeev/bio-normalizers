@@ -1,8 +1,9 @@
 import re
 from typing import Dict, Set, Optional, List, Tuple, Pattern
 
-from normalizers.gene.GNormPlus.models.paper import Paper, GeneType, Passage, GeneAnnotation
+from normalizers.gene.GNormPlus.models.paper import Paper, GeneType, Passage, GeneAnnotation, SpeciesAnnotation, SpeciesAnnotationPlacement
 from normalizers.gene.GNormPlus.processing.scoring import score_function
+from normalizers.gene.GNormPlus.processing.species import HUMAN_ID
 from normalizers.gene.GNormPlus.util.re_patterns import SINGLE_GENE_PATTERN, MULTI_GENE_PATTERN, GENE_GMT_PATTERN, HOMO_GMT_PATTERN, \
     NUMBER_PATTERN
 from normalizers.gene.GNormPlus.util.tokens import split_to_tokens
@@ -10,6 +11,7 @@ from normalizers.gene.GNormPlus.util.trees import PrefixTree
 
 ID_KEY = 'ID'
 TYPE_KEY = 'type'
+FALLBACK_KEY = 'fallback'
 GeneMentionHash = Dict[str, Dict[str, str]]
 MentionHash = Set[str]
 Filtering = Set[Pattern[str]]
@@ -69,6 +71,14 @@ def find_in_gene_tree(paper: Paper, guaranteed_gene_to_id: GuaranteedGeneToID, m
                 if tax_to_id[0] == tax:
                     hashes[ID_KEY] = tax_to_id[1]
                     break
+
+            if tax != HUMAN_ID and ID_KEY not in hashes:
+                for ID in ids:  # type: str
+                    tax_to_id = ID.split(':')
+                    if tax_to_id[0] == HUMAN_ID:
+                        hashes[ID_KEY] = tax_to_id[1]
+                        hashes[FALLBACK_KEY] = HUMAN_ID
+                        break
 
             # Gene ID refinement
             if ID_KEY in hashes:
@@ -197,6 +207,8 @@ def append_gene_ids(paper: Paper, gene_mention_hash: GeneMentionHash, family_nam
                 if m_with_tax in gene_mention_hash and ID_KEY in gene_mention_hash[m_with_tax]:
                     gene_id = gene_mention_hash[m_with_tax][ID_KEY]
                     gene.id = gene_id
+                    if FALLBACK_KEY in gene_mention_hash[m_with_tax]:
+                        gene.tax_id = SpeciesAnnotation(gene_mention_hash[m_with_tax][FALLBACK_KEY], SpeciesAnnotationPlacement.FALLBACK)
                     gene_ids.add(gene_id.split('-')[0])
             elif gene.type == GeneType.FAMILY_NAME or gene.type == GeneType.DOMAIN_MOTIF:
                 ids = family_name_tree.find_mention(gene.text)
