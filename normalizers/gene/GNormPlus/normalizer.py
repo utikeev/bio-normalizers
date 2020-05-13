@@ -5,8 +5,9 @@ from typing import Set, Dict, List, Callable, Tuple, Pattern
 
 from tqdm import tqdm
 
+from common.models.paper import Paper
 from normalizers.gene.GNormPlus.config import GNormPlusConfig
-from normalizers.gene.GNormPlus.models.paper import Paper
+from normalizers.gene.GNormPlus.models.paper import GNormPaper
 from normalizers.gene.GNormPlus.processing.normalization import fill_gene_mention_hash, find_in_gene_tree, infer_multiple_genes, \
     process_abbreviations, rank_by_score_function, remove_gmt, append_gene_ids
 from normalizers.gene.GNormPlus.processing.paper_processing import preprocess_paper
@@ -142,7 +143,8 @@ class GNormPlus:
             if count != .0:
                 self.gene_scoring_df[parts[0]] = math.log10(self.gene_scoring_df_sum / count)
 
-    def normalize(self, paper: Paper):
+    def normalize(self, original_paper: Paper):
+        paper = GNormPaper(original_paper)
         gene_mention_hash: Dict[str, Dict[str, str]] = {}
         mention_hash: Set[str] = set()
         guaranteed_gene_to_id: Dict[str, str] = {}

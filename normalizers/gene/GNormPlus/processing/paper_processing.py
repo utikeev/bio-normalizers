@@ -1,7 +1,7 @@
 import re
 from typing import Dict
 
-from normalizers.gene.GNormPlus.models.paper import Paper, GeneType, Passage, GeneAnnotation
+from normalizers.gene.GNormPlus.models.paper import GNormPaper, GeneType, Passage, GNormGeneMention
 from normalizers.gene.GNormPlus.util.re_patterns import PREPROCESS_PATTERN0, PREPROCESS_PATTERN1, PREPROCESS_PATTERN2, PREPROCESS_PATTERN3, \
     PREPROCESS_PATTERN4, PREPROCESS_PATTERN5, PREPROCESS_PATTERN6, PREPROCESS_PATTERN7
 from normalizers.gene.GNormPlus.util.trees import PrefixTree, FoundMention
@@ -14,11 +14,11 @@ _DOMAIN_MOTIF_SUFFIX = '(domain|motif|domains|motifs|sequences)'
 _DEFAULT_BOUNDARY_LEN = 15
 
 
-def preprocess_paper(paper: Paper, chromosome_tree: PrefixTree):
+def preprocess_paper(paper: GNormPaper, chromosome_tree: PrefixTree):
     mention_to_type: Dict[str, GeneType] = {}
 
     for passage in paper.passages:  # type: Passage
-        for i, annotation in enumerate(passage.genes):  # type: GeneAnnotation
+        for i, annotation in enumerate(passage.genes):  # type: GNormGeneMention
             mention = annotation.text.lower()
             m_type = annotation.type
             end = annotation.location.end

@@ -2,7 +2,5 @@ py_library(
     name = 'models',
     visibility = ['//visibility:public'],
     srcs = glob(['*.py']),
-    deps = [
-        '//common/models'
-    ],
+    deps = [],
 )

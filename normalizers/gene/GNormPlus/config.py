@@ -25,3 +25,10 @@ class GNormPlusConfig(NamedTuple):
     chromosome_tree_path: str = join(TREES_PATH, 'PT_GeneChromosome.txt')
     gene_tree_path: str = join(TREES_PATH, 'PT_Gene.txt')
     family_name_tree_path: str = join(TREES_PATH, 'PT_FamilyName.txt')
+
+
+TEST_CONFIG = GNormPlusConfig(
+    gene_tree_path=join(TREES_PATH, 'PT_GeneTest.txt'),
+    gene_scoring_path=join(DATA_PATH, 'GeneScoringTest.txt'),
+    gene_scoring_df_path=join(DATA_PATH, 'GeneScoring.DFTest.txt')
+)

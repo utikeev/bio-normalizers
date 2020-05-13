@@ -1,23 +1,8 @@
 from enum import Enum
 from typing import List, Dict, Optional
 
-
-class Location:
-    def __init__(self, start: int, end: int):
-        self.start = start
-        self.end = end
-
-    def __str__(self):
-        return f'[{self.start}, {self.end}]'
-
-    def __repr__(self):
-        return str(self)
-
-
-class Abbreviation:
-    def __init__(self, long_form: str, short_form: str):
-        self.long_form = long_form
-        self.short_form = short_form
+from common.models.bio_entities import GeneMention, SpeciesMention
+from common.models.paper import Paper, Passage
 
 
 class GeneType(Enum):
@@ -35,7 +20,7 @@ class SpeciesAnnotationPlacement:
     FALLBACK = 'Fallback'
 
 
-class SpeciesAnnotation:
+class GNormSpeciesAnnotation:
     def __init__(self, s_id: str, placement: SpeciesAnnotationPlacement):
         self.id = s_id
         self.placement = placement
@@ -47,13 +32,31 @@ class SpeciesAnnotation:
         return str(self)
 
 
-class GeneAnnotation:
-    def __init__(self, location: Location, text: str):
-        self.location = location
-        self.text = text
+class GNormGeneMention:
+    def __init__(self, gene: GeneMention):
+        self.gene = gene
         self.type = GeneType.GENE
-        self.tax_id: Optional[SpeciesAnnotation] = None
-        self.id: Optional[str] = None
+        self.tax_id: Optional[GNormSpeciesAnnotation] = None
+
+    @property
+    def location(self):
+        return self.gene.location
+
+    @property
+    def text(self):
+        return self.gene.text
+
+    @text.setter
+    def text(self, value):
+        self.gene.text = value
+
+    @property
+    def id(self):
+        return self.gene.id
+
+    @id.setter
+    def id(self, value):
+        self.gene.id = value
 
     def __str__(self):
         return f'{self.location}\t{self.text}\t{self.type}\t{self.tax_id}\t{self.id}'
@@ -62,51 +65,41 @@ class GeneAnnotation:
         return str(self)
 
 
-class Species:
-    def __init__(self, location: Location, text: str, s_id: str):
-        self.location = location
-        self.text = text
-        self.id = s_id
+class GNormPassage:
+    def __init__(self, passage: Passage):
+        self.passage = passage
+        self.genes = list(map(lambda gene: GNormGeneMention(gene), passage.genes))
 
-    def __str__(self):
-        return f'{self.location}\t{self.text}\t{self.id}'
+    @property
+    def name(self) -> str:
+        return self.passage.name
 
-    def __repr__(self):
-        return str(self)
+    @property
+    def context(self) -> str:
+        return self.passage.context
 
-
-class Passage:
-    def __init__(self, name: str, context: str, genes: List[GeneAnnotation], species: Optional[List[Species]] = None):
-        self.name = name
-        self.context = context
-        self.genes = genes
-        self.species: List[Species] = species or []
-
-    def __str__(self):
-        return f'{self.name}\t{self.context}\t{" ".join([str(a) for a in self.genes])}'
-
-    def __repr__(self):
-        return str(self)
+    @property
+    def species(self) -> List[SpeciesMention]:
+        return self.passage.species
 
 
-class Paper:
-    def __init__(self, pmid: str, passages: List[Passage], abbreviations: List[Abbreviation]):
-        self.pmid = pmid
-        self.passages = passages
-        self.abbreviations = abbreviations
-        self.abb_sf_to_lf: Dict[str, str] = {}
-        self.abb_lf_to_sf: Dict[str, str] = {}
-        for abbreviation in self.abbreviations:
-            sf = abbreviation.short_form.lower()
-            lf = abbreviation.long_form.lower()
-            self.abb_sf_to_lf[sf] = lf
-            self.abb_lf_to_sf[lf] = sf
-
+class GNormPaper:
+    def __init__(self, paper: Paper):
+        self.paper = paper
+        self.passages = list(map(lambda passage: GNormPassage(passage), paper.passages))
         self.chromosome_hash = set()
 
-    def __str__(self):
-        passages = "\n".join([str(p) for p in self.passages])
-        return f'{self.pmid}\t{passages}'
+    @property
+    def pmid(self) -> str:
+        return self.paper.pmid
 
-    def __repr__(self):
-        return str(self)
+    @property
+    def abb_sf_to_lf(self) -> Dict[str, str]:
+        return self.paper.abb_sf_to_lf
+
+    @property
+    def abb_lf_to_sf(self) -> Dict[str, str]:
+        return self.paper.abb_lf_to_sf
+
+    def __str__(self):
+        return str(self.paper)

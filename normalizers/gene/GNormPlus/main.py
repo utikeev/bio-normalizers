@@ -1,11 +1,13 @@
-from normalizers.gene.GNormPlus.models.paper import Paper, Passage, GeneAnnotation, Location
+from common.models.bio_entities import GeneMention
+from common.models.paper import Passage, Paper
+from common.models.util import Location
+from normalizers.gene.GNormPlus.config import TEST_CONFIG
 from normalizers.gene.GNormPlus.normalizer import GNormPlus
 
 if __name__ == '__main__':
-
-    title = Passage('title', 'rCNT1', [GeneAnnotation(Location(0, 5), 'rCNT1')])
+    title = Passage('title', 'rCNT1', [GeneMention(Location(0, 5), 'rCNT1')], [])
     paper = Paper('0', [title], [])
-    normalizer = GNormPlus.default()
+    normalizer = GNormPlus(TEST_CONFIG)
     normalizer.load_data(verbose=True)
     normalizer.normalize(paper)
     print(paper)

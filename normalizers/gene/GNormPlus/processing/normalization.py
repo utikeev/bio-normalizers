@@ -1,7 +1,8 @@
 import re
 from typing import Dict, Set, Optional, List, Tuple, Pattern
 
-from normalizers.gene.GNormPlus.models.paper import Paper, GeneType, Passage, GeneAnnotation, SpeciesAnnotation, SpeciesAnnotationPlacement
+from normalizers.gene.GNormPlus.models.paper import GNormPaper, GeneType, Passage, GNormGeneMention, GNormSpeciesAnnotation, \
+    SpeciesAnnotationPlacement
 from normalizers.gene.GNormPlus.processing.scoring import score_function
 from normalizers.gene.GNormPlus.processing.species import HUMAN_ID
 from normalizers.gene.GNormPlus.util.re_patterns import SINGLE_GENE_PATTERN, MULTI_GENE_PATTERN, GENE_GMT_PATTERN, HOMO_GMT_PATTERN, \
@@ -21,10 +22,10 @@ GuaranteedGeneToID = Dict[str, str]
 MultiGeneToId = Dict[str, str]
 
 
-def fill_gene_mention_hash(paper: Paper, gene_mention_hash: GeneMentionHash, mention_hash: MentionHash, filtering: Filtering):
+def fill_gene_mention_hash(paper: GNormPaper, gene_mention_hash: GeneMentionHash, mention_hash: MentionHash, filtering: Filtering):
     for passage in paper.passages:  # type: Passage
-        for gene in passage.genes:  # type: GeneAnnotation
-            gene: GeneAnnotation
+        for gene in passage.genes:  # type: GNormGeneMention
+            gene: GNormGeneMention
             start = gene.location.start
             end = gene.location.end
             mentions = gene.text
@@ -54,7 +55,7 @@ def fill_gene_mention_hash(paper: Paper, gene_mention_hash: GeneMentionHash, men
                         mention_hash.add(g)
 
 
-def find_in_gene_tree(paper: Paper, guaranteed_gene_to_id: GuaranteedGeneToID, multi_gene_to_id: MultiGeneToId, gene_tree: PrefixTree,
+def find_in_gene_tree(paper: GNormPaper, guaranteed_gene_to_id: GuaranteedGeneToID, multi_gene_to_id: MultiGeneToId, gene_tree: PrefixTree,
                       gene_mention_hash: GeneMentionHash):
     # Official name
     # Only one gene
@@ -116,7 +117,7 @@ def infer_multiple_genes(guaranteed_gene_to_id: GuaranteedGeneToID, multi_gene_t
                 break
 
 
-def process_abbreviations(paper: Paper, gene_mention_hash: GeneMentionHash):
+def process_abbreviations(paper: GNormPaper, gene_mention_hash: GeneMentionHash):
     # FullName -> Abbreviation
     # Abbreviation -> FullName
     for gene_mention_tax, hashes in gene_mention_hash.items():  # type: str, Dict[str, str]
@@ -130,7 +131,7 @@ def process_abbreviations(paper: Paper, gene_mention_hash: GeneMentionHash):
             gene_mention_hash[other_form][ID_KEY] = hashes[ID_KEY]
 
 
-def rank_by_score_function(paper: Paper, gene_mention_hash: GeneMentionHash, mention_hash: MentionHash, gene_scoring: GeneScoring,
+def rank_by_score_function(paper: GNormPaper, gene_mention_hash: GeneMentionHash, mention_hash: MentionHash, gene_scoring: GeneScoring,
                            gene_scoring_df: GeneScoringDF):
     # Ranking by score function (inference network)
     for gene_mention_tax, hashes in gene_mention_hash.items():  # type: str, Dict[str, str]
@@ -150,7 +151,7 @@ def rank_by_score_function(paper: Paper, gene_mention_hash: GeneMentionHash, men
             hashes[ID_KEY] = target_gene_id
 
 
-def remove_gmt(paper: Paper, gene_mention_hash: GeneMentionHash, gene_scoring: GeneScoring):
+def remove_gmt(paper: GNormPaper, gene_mention_hash: GeneMentionHash, gene_scoring: GeneScoring):
     # The inference network tokens of Abbreviation.ID should contain at least LF tokens
     # The short mention should be filtered if not long form support
     gmts: List[str] = []
@@ -197,18 +198,19 @@ def remove_gmt(paper: Paper, gene_mention_hash: GeneMentionHash, gene_scoring: G
         gene_mention_hash.pop(gmt)
 
 
-def append_gene_ids(paper: Paper, gene_mention_hash: GeneMentionHash, family_name_tree: PrefixTree):
+def append_gene_ids(paper: GNormPaper, gene_mention_hash: GeneMentionHash, family_name_tree: PrefixTree):
     # Append gene IDs
     gene_ids: Set[str] = set()
     for passage in paper.passages:  # type: Passage
-        for gene in passage.genes:  # type: GeneAnnotation
+        for gene in passage.genes:  # type: GNormGeneMention
             if gene.type == GeneType.GENE:
                 m_with_tax = gene.text + '\t' + gene.tax_id.id
                 if m_with_tax in gene_mention_hash and ID_KEY in gene_mention_hash[m_with_tax]:
                     gene_id = gene_mention_hash[m_with_tax][ID_KEY]
                     gene.id = gene_id
                     if FALLBACK_KEY in gene_mention_hash[m_with_tax]:
-                        gene.tax_id = SpeciesAnnotation(gene_mention_hash[m_with_tax][FALLBACK_KEY], SpeciesAnnotationPlacement.FALLBACK)
+                        gene.tax_id = GNormSpeciesAnnotation(gene_mention_hash[m_with_tax][FALLBACK_KEY],
+                                                             SpeciesAnnotationPlacement.FALLBACK)
                     gene_ids.add(gene_id.split('-')[0])
             elif gene.type == GeneType.FAMILY_NAME or gene.type == GeneType.DOMAIN_MOTIF:
                 ids = family_name_tree.find_mention(gene.text)

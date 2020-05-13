@@ -4,6 +4,7 @@ py_library(
     imports = ['../../..'],
     srcs = glob(['*.py']),
     deps = [
+        '//common/models',
         '//normalizers/gene/GNormPlus/models',
         '//normalizers/gene/GNormPlus/processing',
         '//normalizers/gene/GNormPlus/util'
