@@ -1,0 +1,42 @@
+py_library(
+    name = 'data',
+    srcs = glob(['*.py']),
+    deps = [],
+)
+
+py_binary(
+    name = 'build_dict_',
+    main = 'build_dict.py',
+    srcs = ['build_dict.py'],
+    deps = [':data'],
+)
+
+py_binary(
+    name = 'build_dict_test',
+    main = 'build_dict.py',
+    srcs = ['build_dict.py'],
+    deps = [':data'],
+    data = ['@ncbi_taxonomy//:names.dmp'],
+    args = [
+        '--dump', '$(location @ncbi_taxonomy//:names.dmp)',
+        '--out', '/Users/stanislav.utikeev/Study/master-diploma/taxdump/conflicting.txt'
+    ]
+)
+
+genrule(
+    name = 'build_dict',
+    srcs = ['@ncbi_taxonomy//:names.dmp'],
+    outs = ['species_dict.tsv'],
+    tools = [':build_dict_'],
+    cmd = '$(execpath :build_dict_) --dump $< --out $@'
+)
+
+py_binary(
+    name = 'check_dict',
+    srcs = ['check_dict.py'],
+    main = 'check_dict.py',
+    data = [':species_dict.tsv'],
+    args = [
+        '--dict', '$(location :species_dict.tsv)'
+    ]
+)
