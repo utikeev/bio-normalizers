@@ -123,10 +123,11 @@ def process_abbreviations(paper: GNormPaper, gene_mention_hash: GeneMentionHash)
     for gene_mention_tax, hashes in gene_mention_hash.items():  # type: str, Dict[str, str]
         mentions, tax = gene_mention_tax.split('\t')  # type: str, str
         other_form: Optional[str] = None
-        if mentions.lower() in paper.abb_lf_to_sf:
-            other_form = paper.abb_lf_to_sf[mentions] + '\t' + tax
-        elif mentions.lower() in paper.abb_sf_to_lf:
-            other_form = paper.abb_sf_to_lf[mentions] + '\t' + tax
+        lowered_mention = mentions.lower()
+        if lowered_mention in paper.abb_lf_to_sf:
+            other_form = paper.abb_lf_to_sf[lowered_mention] + '\t' + tax
+        elif lowered_mention in paper.abb_sf_to_lf:
+            other_form = paper.abb_sf_to_lf[lowered_mention] + '\t' + tax
         if other_form and other_form in gene_mention_hash and ID_KEY in hashes:
             gene_mention_hash[other_form][ID_KEY] = hashes[ID_KEY]
 
