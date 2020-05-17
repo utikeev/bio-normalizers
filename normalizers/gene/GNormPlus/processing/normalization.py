@@ -141,13 +141,13 @@ def rank_by_score_function(paper: GNormPaper, gene_mention_hash: GeneMentionHash
             target_gene_id = ''
             for ID in gene_ids:
                 mentions, tax = gene_mention_tax.split('\t')
-                lf = ''
-                if mentions.lower() in paper.abb_sf_to_lf:
-                    lf = paper.abb_sf_to_lf[mentions]
-                score = score_function(ID, mention_hash, lf, gene_scoring, gene_scoring_df)
-                if score > max_score:
-                    max_score = score
-                    target_gene_id = ID
+                lowered_mention = mentions.lower()
+                if lowered_mention in paper.abb_sf_to_lf:
+                    lf = paper.abb_sf_to_lf[lowered_mention]
+                    score = score_function(ID, mention_hash, lf, gene_scoring, gene_scoring_df)
+                    if score > max_score:
+                        max_score = score
+                        target_gene_id = ID
             hashes[ID_KEY] = target_gene_id
 
 
