@@ -1,0 +1,59 @@
+filegroup(
+    name = 'data',
+    visibility = ['//visibility:public'],
+    srcs = glob(['*']),
+)
+
+py_binary(
+    name = 'preprocess_mesh',
+    main = 'preprocess_mesh.py',
+    srcs = [':preprocess_mesh.py'],
+    deps = [],
+)
+
+py_binary(
+    name = 'preprocess_mesh_test',
+    main = 'preprocess_mesh.py',
+    srcs = [':preprocess_mesh.py'],
+    deps = [],
+    data = [
+        'mesh2020.nt',
+        'mesh_terminology.txt'
+    ],
+    args = [
+        '--mesh_dump', '$(location mesh2020.nt)',
+        '--out_file', '$(location mesh_terminology.txt)'
+    ]
+)
+
+py_binary(
+    name = 'compare_dicts',
+    main = 'compare_dicts.py',
+    srcs = [':compare_dicts.py'],
+    deps = [],
+    data = [
+        'mesh_terminology.txt',
+        'TERMINOLOGY.txt'
+    ],
+    args = [
+        '--mesh_dump', '$(location mesh_terminology.txt)',
+        '--terminology', '$(location TERMINOLOGY.txt)'
+    ]
+)
+
+genrule(
+    name = 'preprocess_mesh_',
+    srcs = ['mesh2020.nt'],
+    outs = ['mesh_terminology.txt'],
+    tools = [':preprocess_mesh'],
+    cmd = '$(execpath :preprocess_mesh) --mesh_dump $< --out_file $@'
+)
+
+py_binary(
+    name = 'check_mesh',
+    main = 'check_mesh.py',
+    srcs = ['check_mesh.py'],
+    deps = [],
+    data = ['mesh_terminology.txt'],
+    args = ['--mesh_terminology', '$(location mesh_terminology.txt)']
+)

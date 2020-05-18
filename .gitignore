@@ -8,5 +8,7 @@ bazel-bio-normalizers
 bazel-out
 bazel-testlogs
 
-**/data/**/*.txt
+**/data/**/*
+!**/data/**/BUILD.bazel
+!**/data/**/*.py
 sync-normalizers.sh
