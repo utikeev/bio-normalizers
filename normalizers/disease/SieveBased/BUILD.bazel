@@ -1,8 +1,12 @@
 py_library(
     name = 'SieveBased',
     srcs = glob(['*.py']),
+    data = [
+        '//normalizers/disease/SieveBased/data',
+    ],
     deps = [
-
+        '//normalizers/disease/SieveBased/config',
+        '//normalizers/disease/SieveBased/processing'
     ],
 )
 

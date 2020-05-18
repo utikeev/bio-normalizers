@@ -1,4 +1,4 @@
-def run_pytest(name, srcs, deps=None, size=None):
+def run_pytest(name, srcs, deps=None, data=None, size=None):
     code = """
 import os
 import pytest
@@ -18,6 +18,7 @@ if __name__ == "__main__":
     native.py_test(
         name = name,
         srcs = ["%s.py" % name] + srcs,
+        data = data,
         deps = deps,
         size = size
     )

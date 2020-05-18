@@ -1,7 +1,7 @@
 filegroup(
     name = 'data',
     visibility = ['//visibility:public'],
-    srcs = glob(['*']),
+    srcs = glob(['*.txt']),
 )
 
 py_binary(
@@ -39,21 +39,4 @@ py_binary(
         '--mesh_dump', '$(location mesh_terminology.txt)',
         '--terminology', '$(location TERMINOLOGY.txt)'
     ]
-)
-
-genrule(
-    name = 'preprocess_mesh_',
-    srcs = ['mesh2020.nt'],
-    outs = ['mesh_terminology.txt'],
-    tools = [':preprocess_mesh'],
-    cmd = '$(execpath :preprocess_mesh) --mesh_dump $< --out_file $@'
-)
-
-py_binary(
-    name = 'check_mesh',
-    main = 'check_mesh.py',
-    srcs = ['check_mesh.py'],
-    deps = [],
-    data = ['mesh_terminology.txt'],
-    args = ['--mesh_terminology', '$(location mesh_terminology.txt)']
 )

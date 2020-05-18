@@ -1,0 +1,9 @@
+py_library(
+    name = 'processing',
+    srcs = glob(['*.py']),
+    visibility = ['//visibility:public'],
+    deps = [
+        '//common/util',
+        '//normalizers/disease/SieveBased/config'
+    ],
+)

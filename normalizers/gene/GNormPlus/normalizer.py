@@ -1,11 +1,12 @@
 import math
 import re
 from datetime import datetime
-from typing import Set, Dict, List, Callable, Tuple, Pattern
+from typing import Set, Dict, List, Tuple, Pattern
 
 from tqdm import tqdm
 
 from common.models.paper import Paper
+from common.util.files import process_file
 from normalizers.gene.GNormPlus.config import GNormPlusConfig
 from normalizers.gene.GNormPlus.models.paper import GNormPaper
 from normalizers.gene.GNormPlus.processing.normalization import fill_gene_mention_hash, find_in_gene_tree, infer_multiple_genes, \
@@ -13,17 +14,6 @@ from normalizers.gene.GNormPlus.processing.normalization import fill_gene_mentio
 from normalizers.gene.GNormPlus.processing.paper_processing import preprocess_paper
 from normalizers.gene.GNormPlus.processing.species import assign_species
 from normalizers.gene.GNormPlus.util.trees import PrefixTree
-
-
-def _process_file(path: str, process_fn: Callable[[str], None], *, verbose: bool = False, message: str = ''):
-    with open(path, 'r') as f:
-        lines = f.readlines()
-        if verbose:
-            lines = tqdm(lines, message)
-        for line in lines:
-            stripped = line.strip()
-            if stripped:
-                process_fn(stripped)
 
 
 def _process_tree(path: str, tree: PrefixTree, *, verbose: bool = False, message: str = ''):
@@ -82,28 +72,28 @@ class GNormPlus:
             print(f'Loading dictionaries…')
         _process_tree(self.config.gene_tree_path, self.gene_tree, verbose=verbose,
                       message='Loading gene tree')
-        _process_file(self.config.gene_scoring_path, self._process_gene_scoring, verbose=verbose,
-                      message='Loading gene scorings')
-        _process_file(self.config.gene_scoring_df_path, self._process_gene_scoring_df, verbose=verbose,
-                      message='Loading gene scorings DF')
+        process_file(self.config.gene_scoring_path, self._process_gene_scoring, verbose=verbose,
+                     message='Loading gene scorings')
+        process_file(self.config.gene_scoring_df_path, self._process_gene_scoring_df, verbose=verbose,
+                     message='Loading gene scorings DF')
 
         _process_tree(self.config.chromosome_tree_path, self.chromosome_tree, verbose=verbose,
                       message='Loading chromosome tree')
         _process_tree(self.config.family_name_tree_path, self.family_name_tree, verbose=verbose,
                       message='Loading family name tree')
 
-        _process_file(self.config.gene_without_sp_prefix_path, self._process_gene_without_sp_prefix, verbose=verbose,
-                      message='Loading genes without special prefix')
-        _process_file(self.config.suffix_translation_map_path, self._process_suffix_translation_map, verbose=verbose,
-                      message='Loading suffix translation map')
-        _process_file(self.config.prefix_id_map_path, self._process_prefix_map, verbose=verbose,
-                      message='Loading prefix map')
-        _process_file(self.config.taxonomy_freq_map_path, self._process_taxonomy_frequency, verbose=verbose,
-                      message='Loading taxonomy frequency')
-        _process_file(self.config.virus_human_list_path, self._process_virus_to_human, verbose=verbose,
-                      message='Loading human virus list')
-        _process_file(self.config.filtering_path, self._process_filtering, verbose=verbose,
-                      message='Loading filtering')
+        process_file(self.config.gene_without_sp_prefix_path, self._process_gene_without_sp_prefix, verbose=verbose,
+                     message='Loading genes without special prefix')
+        process_file(self.config.suffix_translation_map_path, self._process_suffix_translation_map, verbose=verbose,
+                     message='Loading suffix translation map')
+        process_file(self.config.prefix_id_map_path, self._process_prefix_map, verbose=verbose,
+                     message='Loading prefix map')
+        process_file(self.config.taxonomy_freq_map_path, self._process_taxonomy_frequency, verbose=verbose,
+                     message='Loading taxonomy frequency')
+        process_file(self.config.virus_human_list_path, self._process_virus_to_human, verbose=verbose,
+                     message='Loading human virus list')
+        process_file(self.config.filtering_path, self._process_filtering, verbose=verbose,
+                     message='Loading filtering')
 
         if verbose:
             print(f'Dictionaries loading took {datetime.now() - start_time}s')

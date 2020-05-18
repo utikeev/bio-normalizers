@@ -1,0 +1,6 @@
+py_library(
+    name = 'util',
+    visibility = ['//visibility:public'],
+    srcs = glob(['*.py']),
+    deps = [],
+)
