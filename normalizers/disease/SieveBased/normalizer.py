@@ -3,16 +3,8 @@ from typing import List
 from common.models.paper import Paper
 from normalizers.disease.SieveBased.config.config import SieveBasedConfig
 from normalizers.disease.SieveBased.models.entities import SieveBasedDisease, CUI_LESS
-from normalizers.disease.SieveBased.processing.sieves.affixation_sieve import AffixationSieve
-from normalizers.disease.SieveBased.processing.sieves.base_sieve import BaseSieve
-from normalizers.disease.SieveBased.processing.sieves.disease_modifier_synonyms_sieve import DiseaseModifierSynonymsSieve
-from normalizers.disease.SieveBased.processing.sieves.hyphenation_sieve import HyphenationSieve
-from normalizers.disease.SieveBased.processing.sieves.partial_match_ncbi_sieve import PartialMatchNCBISieve
-from normalizers.disease.SieveBased.processing.sieves.prepositional_transform_sieve import PrepositionalTransformSieve
-from normalizers.disease.SieveBased.processing.sieves.sieve import Sieve
-from normalizers.disease.SieveBased.processing.sieves.simple_name_sieve import SimpleNameSieve
-from normalizers.disease.SieveBased.processing.sieves.stemming_sieve import StemmingSieve
-from normalizers.disease.SieveBased.processing.sieves.symbol_replacement_sieve import SymbolReplacementSieve
+from normalizers.disease.SieveBased.processing.sieves import AffixationSieve, BaseSieve, DiseaseModifierSynonymsSieve, HyphenationSieve, \
+    PartialMatchNCBISieve, PrepositionalTransformSieve, Sieve, SimpleNameSieve, StemmingSieve, SymbolReplacementSieve
 from normalizers.disease.SieveBased.processing.terminology import Terminology
 from normalizers.disease.SieveBased.util.text_processor import TextProcessor
 
