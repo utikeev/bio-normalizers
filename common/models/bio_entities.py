@@ -9,6 +9,7 @@ class BioEntityType(Enum):
     GENE = 'GENE'
     SPECIES = 'SPECIES'
     DISEASE = 'DISEASE'
+    CHEMICAL = 'CHEMICAL'
 
 
 class BioEntity(abc.ABC):
@@ -45,3 +46,9 @@ class DiseaseMention(BioEntity):
     @property
     def e_type(self) -> BioEntityType:
         return BioEntityType.DISEASE
+
+
+class ChemicalMention(BioEntity):
+    @property
+    def e_type(self) -> BioEntityType:
+        return BioEntityType.CHEMICAL

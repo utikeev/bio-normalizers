@@ -24,18 +24,3 @@ py_binary(
         '--out_file', '$(location mesh_terminology.txt)'
     ]
 )
-
-py_binary(
-    name = 'compare_dicts',
-    main = 'compare_dicts.py',
-    srcs = [':compare_dicts.py'],
-    deps = [':data_lib'],
-    data = [
-        'mesh_terminology.txt',
-        'TERMINOLOGY.txt'
-    ],
-    args = [
-        '--mesh_dump', '$(location mesh_terminology.txt)',
-        '--terminology', '$(location TERMINOLOGY.txt)'
-    ]
-)

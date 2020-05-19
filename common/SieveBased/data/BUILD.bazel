@@ -1,0 +1,5 @@
+filegroup(
+    name = 'data',
+    visibility = ['//visibility:public'],
+    srcs = glob(['*.txt']),
+)

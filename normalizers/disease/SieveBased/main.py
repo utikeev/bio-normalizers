@@ -1,11 +1,11 @@
 from common.models.bio_entities import DiseaseMention
 from common.models.paper import Passage, Paper
 from common.models.util import Location
-from normalizers.disease.SieveBased.normalizer import SieveBasedNormalizer
+from normalizers.disease.SieveBased.normalizer import DiseaseSieveBasedNormalizer
 
 
 def main():
-    normalizer = SieveBasedNormalizer.default()
+    normalizer = DiseaseSieveBasedNormalizer.default()
     normalizer.load_data(verbose=True)
 
     passage = Passage('abstract', '', diseases=[

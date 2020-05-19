@@ -7,7 +7,7 @@ Downloaded data is the courtesy of the U.S. National Library of Medicine.
 import argparse
 from pathlib import Path
 
-from common.util.mesh_utils import DISEASE_TYPE, collect_entities
+from common.util.mesh_utils import collect_entities, CHEMICAL_TYPE
 
 
 def setup_argparser() -> argparse.ArgumentParser:
@@ -19,8 +19,8 @@ def setup_argparser() -> argparse.ArgumentParser:
 
 
 def main(mesh_dump: Path, out_file: Path):
-    diseases = collect_entities(mesh_dump, 'C', DISEASE_TYPE)
-    
+    diseases = collect_entities(mesh_dump, 'D', CHEMICAL_TYPE)
+
     with out_file.open('w') as out:
         for d_id, aliases in diseases.items():
             aliases_str = '|'.join(aliases)
