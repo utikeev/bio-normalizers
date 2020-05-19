@@ -27,6 +27,7 @@ class EntityType(Enum):
     PREFERRED_LABEL = '<http://id.nlm.nih.gov/mesh/vocab#prefLabel>'
     ALT_LABEL = '<http://id.nlm.nih.gov/mesh/vocab#altLabel>'
     BROADER_DESCRIPTOR = '<http://id.nlm.nih.gov/mesh/vocab#broaderDescriptor>'
+    TREE_NUMBER = '<http://id.nlm.nih.gov/mesh/vocab#treeNumber>'
 
 
 def setup_argparser() -> argparse.ArgumentParser:
@@ -126,6 +127,8 @@ def main(mesh_dump: Path, out_file: Path):
             for disease in d[EntityType.PREFERRED_MAPPED_TO]:
                 disease_id = get_id(disease)
                 add_topical_descriptor(disease_id)
+        if EntityType.TREE_NUMBER in d and get_id(d[EntityType.TREE_NUMBER][0]).startswith('C'):
+            add_topical_descriptor(ent)
     
     with out_file.open('w') as out:
         for d_id, aliases in diseases.items():
