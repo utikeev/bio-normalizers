@@ -6,6 +6,11 @@ from normalizers.disease.SieveBased.processing.terminology import Terminology
 
 
 class PartialMatchNCBISieve(BaseSieve):
+    """Partial Match sieve.
+
+    Looks for the best candidate in terminology which has minimal length and maximum of the common words with alias
+    (shortest and most similar entity).
+    """
     def __init__(self, terminology: Terminology):
         super(PartialMatchNCBISieve, self).__init__(terminology)
 

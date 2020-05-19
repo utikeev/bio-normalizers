@@ -6,7 +6,7 @@ from normalizers.disease.SieveBased.normalizer import SieveBasedNormalizer
 
 def main():
     normalizer = SieveBasedNormalizer.default()
-    normalizer.load(verbose=True)
+    normalizer.load_data(verbose=True)
 
     passage = Passage('abstract', '', diseases=[
         DiseaseMention(Location(11, 24), 'renal failure'),

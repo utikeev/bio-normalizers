@@ -6,6 +6,9 @@ from normalizers.disease.SieveBased.processing.terminology import Terminology
 
 
 class DiseaseModifierSynonymsSieve(BaseSieve):
+    """Disease Modifier Synonyms sieve.
+
+    """
     def __init__(self, terminology: Terminology):
         super(DiseaseModifierSynonymsSieve, self).__init__(terminology)
 

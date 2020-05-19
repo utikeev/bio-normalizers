@@ -6,6 +6,10 @@ from normalizers.disease.SieveBased.processing.terminology import Terminology
 
 
 class HyphenationSieve(BaseSieve):
+    """Hyphenation sieve.
+
+    Looks for aliases where hyphens are replaced with spaces one-by-one and vice versa.
+    """
     def __init__(self, terminology: Terminology):
         super(HyphenationSieve, self).__init__(terminology)
 

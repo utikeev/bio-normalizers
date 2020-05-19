@@ -7,7 +7,22 @@ from normalizers.disease.SieveBased.util.text_processor import TextProcessor
 
 
 class Terminology:
+    """Wrapper around terminology dictionary.
+
+    Contains mapping from ID to list of aliases of disease. Also has some additional helper maps.
+
+    Notes:
+        After creation of terminology call load_data() to load all of the data.
+        This is also done by load_data() of SieveBasedNormalizer.
+    """
     def __init__(self, terminology_path: str, text_processor: TextProcessor):
+        """
+        Args:
+            terminology_path (str):
+                Path to terminology dictionary.
+            text_processor (TextProcessor):
+                Text processor to use.
+        """
         self.terminology_path: str = terminology_path
         self.text_processor: TextProcessor = text_processor
         self.name_to_cui_map: Dict[str, List[str]] = defaultdict(list)
@@ -19,7 +34,13 @@ class Terminology:
         self.stemmed_normalized_name_to_cui_map: Dict[str, List[str]] = defaultdict(list)
         self.simple_name_to_cui_map: Dict[str, List[str]] = defaultdict(list)
 
-    def load(self, *, verbose: bool = False):
+    def load_data(self, *, verbose: bool = False):
+        """Loads data in terminology.
+
+        Args:
+            verbose (:obj:`bool`, defaults to :obj:`False`):
+                Whether to output verbose information about loading.
+        """
         process_file(self.terminology_path, self._load_terminology, verbose=verbose, message='Loading terminology...')
 
     def _load_terminology(self, line: str):
@@ -49,6 +70,12 @@ class Terminology:
             self.simple_name_to_cui_map[new_phrase].append(cui)
 
     def store_normalized_disease(self, disease: SieveBasedDisease):
+        """Store already normalized disease to have it in cache.
+
+        Args:
+            disease (SieveBasedDisease):
+                Disease to save in normalized maps.
+        """
         if disease.normalizing_sieve_level == 2 and disease.long_form is None:
             return
 

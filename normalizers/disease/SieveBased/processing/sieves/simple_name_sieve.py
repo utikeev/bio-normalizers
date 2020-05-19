@@ -6,6 +6,10 @@ from normalizers.disease.SieveBased.processing.terminology import Terminology
 
 
 class SimpleNameSieve(BaseSieve):
+    """Simple Name sieve.
+
+    Looks for shorter aliases by removing the word before last and the first word.
+    """
     def __init__(self, terminology: Terminology):
         super(SimpleNameSieve, self).__init__(terminology)
 

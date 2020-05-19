@@ -6,6 +6,18 @@ from normalizers.disease.SieveBased.processing.terminology import Terminology
 
 
 class PrepositionalTransformSieve(BaseSieve):
+    """Prepositional Transform sieve.
+
+    Looks for aliases with some of the manipulations with prepositions.
+
+    If the phrase has preposition:
+    1. Create new phrase by substituting it with other prepositions
+    2. Remove the preposition in the phrase and swap the surrounding parts of the string
+
+    If the phrase doesn't have prepositions, generate some:
+    1. By inserting one near the beginning
+    2. By inserting one near the end
+    """
     def __init__(self, terminology: Terminology):
         super(PrepositionalTransformSieve, self).__init__(terminology)
 
@@ -28,15 +40,9 @@ class PrepositionalTransformSieve(BaseSieve):
         transformed_names: Set[str] = set()
         for name in disease.names_knowledge_base:
             preposition_in_name = self.text_processor.get_preposition(name)
-            # If the phrase has preposition we:
-            # 1. Create new phrase by substituting it with other prepositions
-            # 2. Remove the preposition in the phrase and swap the surrounding parts of the string
             if preposition_in_name:
                 transformed_names.update(self._substitute_prepositions_in_phrase(preposition_in_name, name))
                 transformed_names.add(self._swap_phrasal_subject_and_object(preposition_in_name, name.split()))
-            # If the phrase doesn't have prepositions, we'll generate some:
-            # 1. By inserting one near the beginning
-            # 2. By inserting one near the end
             else:
                 transformed_names.update(self._insert_prepositions_in_phrase(name.split()))
         disease.names_knowledge_base.update(transformed_names)

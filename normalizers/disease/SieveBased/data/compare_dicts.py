@@ -1,3 +1,7 @@
+"""
+Compare default sieve-based terminology with the one mined from MeSH dump.
+"""
+
 import argparse
 from pathlib import Path
 from typing import Set

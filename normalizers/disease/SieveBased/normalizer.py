@@ -10,6 +10,15 @@ from normalizers.disease.SieveBased.util.text_processor import TextProcessor
 
 
 class SieveBasedNormalizer:
+    """Sieve-based normalizer for diseases.
+
+    Notes:
+        After creation of normalizer call load_data() to load all of the data.
+
+    Attributes:
+        config (SieveBasedConfig):
+            Config for normalizer
+    """
     def __init__(self, config: SieveBasedConfig):
         self.config = config
         self.text_processor = TextProcessor(config)
@@ -36,11 +45,25 @@ class SieveBasedNormalizer:
         """
         return SieveBasedNormalizer(SieveBasedConfig())
 
-    def load(self, *, verbose: bool = False):
+    def load_data(self, *, verbose: bool = False):
+        """Loads the data used by normalizer.
+
+        Args:
+            verbose (:obj:`bool`, defaults to :obj:`False`):
+                Whether to output verbose information about loading.
+        """
         self.text_processor.load_data(verbose=verbose)
-        self.terminology.load(verbose=verbose)
+        self.terminology.load_data(verbose=verbose)
 
     def normalize(self, paper: Paper, *, verbose: bool = False):
+        """Normalize diseases in paper in-place.
+
+        Args:
+            paper (Paper):
+                Paper to normalize diseases in.
+            verbose (:obj:`bool`, defaults to :obj:`False`):
+                Whether to output verbose information about normalized disease.
+        """
         all_diseases: List[SieveBasedDisease] = []
         for passage in paper.passages:
             for disease in passage.diseases:

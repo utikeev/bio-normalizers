@@ -6,6 +6,11 @@ from normalizers.disease.SieveBased.processing.terminology import Terminology
 
 
 class AffixationSieve(BaseSieve):
+    """Affixation sieve.
+
+    This sieve looks for all of the different suffix combinations, also replaces all of the prefixes and affixes
+    with the values from TextProcessor maps.
+    """
     def __init__(self, terminology: Terminology):
         super(AffixationSieve, self).__init__(terminology)
 

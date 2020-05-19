@@ -11,8 +11,6 @@ class SieveBasedConfig(NamedTuple):
     """Configuration class which holds options and paths to data files.
 
     Is used for creation of :class:`normalizers.disease.SieveBased.normalizer.SieveBased` normalizer.
-
-    Args:
     """
     use_nltk_stopwords: bool = False
     sieve_level: int = 10
@@ -27,9 +25,4 @@ class SieveBasedConfig(NamedTuple):
     singular_synonyms_path: str = join(DATA_PATH, 'singular_synonyms.txt')
     plural_synonyms_path: str = join(DATA_PATH, 'plural_synonyms.txt')
     terminology_path: str = join(DATA_PATH, 'mesh_terminology.txt')
-#
-# TEST_CONFIG = SieveBasedConfig(
-#     gene_tree_path=join(TREES_PATH, 'PT_GeneTest.txt'),
-#     gene_scoring_path=join(DATA_PATH, 'GeneScoringTest.txt'),
-#     gene_scoring_df_path=join(DATA_PATH, 'GeneScoring.DFTest.txt')
-# )
+

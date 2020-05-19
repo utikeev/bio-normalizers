@@ -7,7 +7,20 @@ CUI_LESS = 'CUI-less'
 
 
 class SieveBasedDisease:
+    """DiseaseMention wrapper for sieve-based normalizer.
+
+    Contains stemmed name, the level of normalizer which was used to normalize, known aliases.
+    """
     def __init__(self, disease: DiseaseMention, text_processor: TextProcessor, long_form: Optional[str] = None):
+        """
+        Args:
+            disease (DiseaseMention):
+                Original disease mention.
+            text_processor (TextProcessor):
+                Text processor to operate with.
+            long_form (:obj:`str`, defaults to :obj:`None`):
+                Long form if disease is abbreviation.
+        """
         self.__disease = disease
         self.__disease.text = text_processor.correct_spelling(self.text.lower().strip())
         self.stemmed_name = text_processor.get_stemmed_phrase(self.text)

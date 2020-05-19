@@ -10,8 +10,6 @@ class GNormPlusConfig(NamedTuple):
     """Configuration class which holds options and paths to data files.
 
     Is used for creation of :class:`normalizers.gene.GNormPlus.normalizer.GNormPlus` normalizer.
-
-    Args:
     """
     gene_without_sp_prefix_path: str = join(DATA_PATH, 'GeneWithoutSPPrefix.txt')
     suffix_translation_map_path: str = join(DATA_PATH, 'SuffixTranslationMap.txt')

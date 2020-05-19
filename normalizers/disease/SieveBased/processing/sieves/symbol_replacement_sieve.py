@@ -6,6 +6,10 @@ from normalizers.disease.SieveBased.processing.terminology import Terminology
 
 
 class SymbolReplacementSieve(BaseSieve):
+    """Symbol replacement sieve.
+
+    Looks for aliases with replaced digits/words and bits of the common patterns changed to their analogues.
+    """
     def __init__(self, terminology: Terminology):
         super(SymbolReplacementSieve, self).__init__(terminology)
 
