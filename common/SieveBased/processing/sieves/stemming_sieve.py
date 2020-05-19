@@ -1,7 +1,7 @@
 from typing import Optional, Set
 
 from common.SieveBased.models.entities import SieveBasedEntity
-from common.SieveBased.processing.sieves import BaseSieve
+from common.SieveBased.processing.sieves.base_sieve import BaseSieve
 from common.SieveBased.processing.terminology import Terminology
 
 
