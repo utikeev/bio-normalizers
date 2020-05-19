@@ -27,7 +27,7 @@ class BaseSieve(Sieve):
         return f'Base Sieve{" (expand_abbr)" if self.long_form_mode else ""}'
 
     @staticmethod
-    def get_terminology_name_cui(name_to_cui_map: Dict[str, List[str]], name: str) -> Optional[str]:
+    def get_terminology_name_cui(name_to_cui_map: Dict[str, Set[str]], name: str) -> Optional[str]:
         """Find the exact match in ID map.
 
         Args:
@@ -40,7 +40,7 @@ class BaseSieve(Sieve):
             ID if it is unique element for the name in the map. None, otherwise.
         """
         if name in name_to_cui_map and len(name_to_cui_map[name]) == 1:
-            return name_to_cui_map[name][0]
+            return next(iter(name_to_cui_map[name]))
         return None
 
     def exact_match_sieve(self, name: str) -> Optional[str]:

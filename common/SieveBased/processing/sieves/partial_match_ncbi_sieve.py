@@ -44,7 +44,7 @@ class PartialMatchNCBISieve(BaseSieve):
         for candidate in candidate_phrases:
             partial_matched_phrases.add(candidate)
             count = self.text_processor.get_matching_tokens_count(phrase, candidate)
-            cui = self.terminology.name_to_cui_map[candidate][0]
+            cui = next(iter(self.terminology.name_to_cui_map[candidate]))
 
             if cui in self.cui_candidate_matching_tokens_count_map:
                 old_count = self.cui_candidate_matching_tokens_count_map[cui]
@@ -67,7 +67,7 @@ class PartialMatchNCBISieve(BaseSieve):
                 max_cui_set = set()
                 max_cui_set.add(candidate)
         if len(max_cui_set) == 1:
-            return list(max_cui_set)[0]
+            return next(iter(max_cui_set))
         else:
             min_candidate_length = 1000
             for candidate_cui in max_cui_set:
