@@ -22,8 +22,8 @@ class AffixationSieve(BaseSieve):
     def _affix(self, name: str) -> Set[str]:
         tokens = name.split()
         new_phrases = self._suffixation(tokens, name)
-        new_phrases.update(self._prefixation(tokens))
-        new_phrases.update(self._affixation(tokens))
+        new_phrases.add(self._prefixation(tokens))
+        new_phrases.add(self._affixation(tokens))
         return new_phrases
 
     def _suffixation(self, tokens: List[str], name: str) -> Set[str]:

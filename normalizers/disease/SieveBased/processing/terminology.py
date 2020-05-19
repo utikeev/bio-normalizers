@@ -29,6 +29,7 @@ class Terminology:
             self._put_to_maps(cui, alias)
 
     def _put_to_maps(self, cui: str, alias: str):
+        alias = alias.replace(',', '')
         self.name_to_cui_map[alias].append(cui)
         self.cui_to_name_map[cui].append(alias)
 

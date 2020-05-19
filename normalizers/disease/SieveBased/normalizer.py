@@ -5,6 +5,7 @@ from normalizers.disease.SieveBased.config.config import SieveBasedConfig
 from normalizers.disease.SieveBased.models.entities import SieveBasedDisease, CUI_LESS
 from normalizers.disease.SieveBased.processing.sieves.affixation_sieve import AffixationSieve
 from normalizers.disease.SieveBased.processing.sieves.base_sieve import BaseSieve
+from normalizers.disease.SieveBased.processing.sieves.disease_modifier_synonyms_sieve import DiseaseModifierSynonymsSieve
 from normalizers.disease.SieveBased.processing.sieves.hyphenation_sieve import HyphenationSieve
 from normalizers.disease.SieveBased.processing.sieves.partial_match_ncbi_sieve import PartialMatchNCBISieve
 from normalizers.disease.SieveBased.processing.sieves.prepositional_transform_sieve import PrepositionalTransformSieve
@@ -28,7 +29,7 @@ class SieveBasedNormalizer:
             SymbolReplacementSieve(self.terminology),
             HyphenationSieve(self.terminology),
             AffixationSieve(self.terminology),
-            # DiseaseModifierSynonymsSieve(self.terminology),
+            DiseaseModifierSynonymsSieve(self.terminology),
             StemmingSieve(self.terminology),
             SimpleNameSieve(self.terminology),
             PartialMatchNCBISieve(self.terminology)
