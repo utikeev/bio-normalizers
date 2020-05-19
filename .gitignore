@@ -8,8 +8,6 @@ bazel-bio-normalizers
 bazel-out
 bazel-testlogs
 
-**/data/**/*
-!common/SieveBased/data/*
-!**/data/**/BUILD.bazel
-!**/data/**/*.py
+**/data/**/*.txt
+**/data/**/*.nt
 sync-normalizers.sh
