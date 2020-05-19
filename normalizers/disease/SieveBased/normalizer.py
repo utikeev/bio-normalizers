@@ -48,7 +48,7 @@ class SieveBasedNormalizer:
         self.text_processor.load_data(verbose=verbose)
         self.terminology.load(verbose=verbose)
 
-    def normalize(self, paper: Paper):
+    def normalize(self, paper: Paper, *, verbose: bool = False):
         all_diseases: List[SieveBasedDisease] = []
         for passage in paper.passages:
             for disease in passage.diseases:
@@ -60,10 +60,11 @@ class SieveBasedNormalizer:
                     sieve_disease.id = CUI_LESS
                 if sieve_disease.normalizing_sieve_level != 1 or sieve_disease.id == CUI_LESS:
                     self.terminology.store_normalized_disease(sieve_disease)
-                print(f'{sieve_disease.text} {sieve_disease.id} {sieve_disease.normalizing_sieve_level}')
+                if verbose:
+                    print(f'{sieve_disease.text}\t{sieve_disease.id}\t[{self.sieves[sieve_disease.normalizing_sieve_level].name}]')
 
     def _run_multi_pass_sieve(self, disease: SieveBasedDisease):
-        for i, sieve in enumerate(self.sieves):
+        for i, sieve in enumerate(self.sieves[:self.config.sieve_level]):
             disease.id = sieve.apply(disease)
             if disease.id is not None:
                 disease.normalizing_sieve_level = i

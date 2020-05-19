@@ -9,6 +9,10 @@ class SimpleNameSieve(BaseSieve):
     def __init__(self, terminology: Terminology):
         super(SimpleNameSieve, self).__init__(terminology)
 
+    @property
+    def name(self) -> str:
+        return "Simple Name Sieve"
+
     def apply(self, disease: SieveBasedDisease) -> Optional[str]:
         names_for_transformation = self._get_names_for_transformation(disease)
         names_knowledge_base = self._transform_name(names_for_transformation)

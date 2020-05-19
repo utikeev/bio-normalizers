@@ -27,7 +27,7 @@ def main():
         DiseaseMention(Location(612, 629), 'morbilliform rash'),
     ])
     paper = Paper('1036571', [passage], [])
-    normalizer.normalize(paper)
+    normalizer.normalize(paper, verbose=True)
     # for disease in passage.diseases:
     #     print(disease)
 

@@ -13,3 +13,8 @@ class Sieve(abc.ABC):
     @abc.abstractmethod
     def apply(self, disease: SieveBasedDisease) -> Optional[str]:
         pass
+
+    @property
+    @abc.abstractmethod
+    def name(self) -> str:
+        pass

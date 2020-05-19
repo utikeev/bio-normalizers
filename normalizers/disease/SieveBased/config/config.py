@@ -15,6 +15,7 @@ class SieveBasedConfig(NamedTuple):
     Args:
     """
     use_nltk_stopwords: bool = False
+    sieve_level: int = 10
     stopwords_path: str = join(DATA_PATH, 'stopwords.txt')
     stemmer_constructor: Type[StemmerI] = PorterStemmer
     spell_check_map_path: str = join(DATA_PATH, 'ncbi-spell-check.txt')

@@ -10,6 +10,10 @@ class BaseSieve(Sieve):
         super(BaseSieve, self).__init__(terminology)
         self.long_form_mode = long_form_mode
 
+    @property
+    def name(self) -> str:
+        return f'Base Sieve{" (expand_abbr)" if self.long_form_mode else ""}'
+
     @staticmethod
     def get_terminology_name_cui(name_to_cui_map: Dict[str, List[str]], name: str) -> Optional[str]:
         if name in name_to_cui_map and len(name_to_cui_map[name]) == 1:

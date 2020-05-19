@@ -9,6 +9,10 @@ class DiseaseModifierSynonymsSieve(BaseSieve):
     def __init__(self, terminology: Terminology):
         super(DiseaseModifierSynonymsSieve, self).__init__(terminology)
 
+    @property
+    def name(self) -> str:
+        return "Disease Modifier Synonyms Sieve"
+
     def apply(self, disease: SieveBasedDisease) -> Optional[str]:
         if disease.text not in self.text_processor.plural_synonyms and disease.text not in self.text_processor.singular_synonyms:
             self._transform_name(disease)

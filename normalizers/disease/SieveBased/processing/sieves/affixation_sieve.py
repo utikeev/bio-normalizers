@@ -9,6 +9,10 @@ class AffixationSieve(BaseSieve):
     def __init__(self, terminology: Terminology):
         super(AffixationSieve, self).__init__(terminology)
 
+    @property
+    def name(self) -> str:
+        return "Affixation Sieve"
+
     def apply(self, disease: SieveBasedDisease) -> Optional[str]:
         self._transform_name(disease)
         return self.normalize(disease.names_knowledge_base)

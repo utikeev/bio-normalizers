@@ -9,6 +9,10 @@ class StemmingSieve(BaseSieve):
     def __init__(self, terminology: Terminology):
         super(StemmingSieve, self).__init__(terminology)
 
+    @property
+    def name(self) -> str:
+        return "Stemming Sieve"
+
     def apply(self, disease: SieveBasedDisease) -> Optional[str]:
         self._transform_name(disease)
         return self.normalize(disease.stemmed_names_knowledge_base)

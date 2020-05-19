@@ -9,6 +9,10 @@ class PrepositionalTransformSieve(BaseSieve):
     def __init__(self, terminology: Terminology):
         super(PrepositionalTransformSieve, self).__init__(terminology)
 
+    @property
+    def name(self) -> str:
+        return "Prepositional Transform Sieve"
+
     def apply(self, disease: SieveBasedDisease) -> Optional[str]:
         self._init(disease)
         self._transform_name(disease)

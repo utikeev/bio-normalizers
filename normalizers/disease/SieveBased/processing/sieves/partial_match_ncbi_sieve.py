@@ -9,6 +9,10 @@ class PartialMatchNCBISieve(BaseSieve):
     def __init__(self, terminology: Terminology):
         super(PartialMatchNCBISieve, self).__init__(terminology)
 
+    @property
+    def name(self) -> str:
+        return "Partial Match Sieve"
+
     def apply(self, disease: SieveBasedDisease) -> Optional[str]:
         return self._partial_match(disease.text, disease.text.split())
 
