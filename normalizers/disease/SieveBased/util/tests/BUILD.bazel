@@ -9,7 +9,7 @@ py_library(
 run_pytest(
     name = 'tests',
     srcs = glob(['test_*.py']),
-    deps = ['//normalizers/disease/SieveBased/processing'],
+    deps = ['//normalizers/disease/SieveBased/util'],
     data = ['//normalizers/disease/SieveBased/data'],
     size = 'small'
 )

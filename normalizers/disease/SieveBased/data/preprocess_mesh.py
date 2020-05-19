@@ -26,6 +26,7 @@ class EntityType(Enum):
     CONCEPT = '<http://id.nlm.nih.gov/mesh/vocab#concept>'
     PREFERRED_LABEL = '<http://id.nlm.nih.gov/mesh/vocab#prefLabel>'
     ALT_LABEL = '<http://id.nlm.nih.gov/mesh/vocab#altLabel>'
+    BROADER_DESCRIPTOR = '<http://id.nlm.nih.gov/mesh/vocab#broaderDescriptor>'
 
 
 def setup_argparser() -> argparse.ArgumentParser:
@@ -110,13 +111,21 @@ def main(mesh_dump: Path, out_file: Path):
                 continue
 
     diseases: Dict[str, Set[str]] = {}
+
+    def add_topical_descriptor(t_id: str):
+        if t_id not in diseases:
+            diseases[t_id] = set(get_terms_from_concepts(entities, t_id))
+            if EntityType.BROADER_DESCRIPTOR in entities[t_id]:
+                for broader in entities[t_id][EntityType.BROADER_DESCRIPTOR]:
+                    broader_id = get_id(broader)
+                    add_topical_descriptor(broader_id)
+
     for ent, d in entities.items():
         if EntityType.TYPE in d and d[EntityType.TYPE][0] == DISEASE_TYPE:
             diseases[ent] = set(get_terms_from_concepts(entities, ent))
             for disease in d[EntityType.PREFERRED_MAPPED_TO]:
                 disease_id = get_id(disease)
-                if disease_id not in diseases:
-                    diseases[disease_id] = set(get_terms_from_concepts(entities, disease_id))
+                add_topical_descriptor(disease_id)
     
     with out_file.open('w') as out:
         for d_id, aliases in diseases.items():

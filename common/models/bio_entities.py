@@ -8,6 +8,7 @@ from common.models.util import Location
 class BioEntityType(Enum):
     GENE = 'GENE'
     SPECIES = 'SPECIES'
+    DISEASE = 'DISEASE'
 
 
 class BioEntity(abc.ABC):
@@ -38,3 +39,9 @@ class GeneMention(BioEntity):
     @property
     def e_type(self) -> BioEntityType:
         return BioEntityType.GENE
+
+
+class DiseaseMention(BioEntity):
+    @property
+    def e_type(self) -> BioEntityType:
+        return BioEntityType.DISEASE

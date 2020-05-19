@@ -1,9 +1,9 @@
 from normalizers.disease.SieveBased.config.config import SieveBasedConfig
-from normalizers.disease.SieveBased.processing.text_processor import TextProcessor
+from normalizers.disease.SieveBased.util.text_processor import TextProcessor
 
-processor = TextProcessor.default()
+processor = TextProcessor(SieveBasedConfig())
 processor.load_data()
-nltk_processor = TextProcessor.nltk_stopword()
+nltk_processor = TextProcessor(SieveBasedConfig(use_nltk_stopwords=True))
 nltk_processor.load_data()
 
 

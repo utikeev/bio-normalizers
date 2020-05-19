@@ -24,14 +24,6 @@ class TextProcessor:
         self.singular_synonyms: List[str] = []
         self.plural_synonyms: List[str] = []
 
-    @classmethod
-    def default(cls) -> 'TextProcessor':
-        return TextProcessor(SieveBasedConfig())
-
-    @classmethod
-    def nltk_stopword(cls) -> 'TextProcessor':
-        return TextProcessor(SieveBasedConfig(use_nltk_stopwords=True))
-
     def load_data(self, *, verbose=False):
         if self.config.use_nltk_stopwords:
             nltk.download('stopwords', quiet=not verbose)
@@ -123,6 +115,13 @@ class TextProcessor:
     @staticmethod
     def get_token_substring(tokens: List[str], begin: int, end: int) -> str:
         return ' '.join(tokens[begin:end])
+
+    @staticmethod
+    def get_token_index(tokens: List[str], token: str) -> Optional[int]:
+        try:
+            return tokens.index(token)
+        except ValueError:
+            return None
 
     def get_suffix(self, string: str) -> Optional[str]:
         for suffix in self.suffix_map.keys():

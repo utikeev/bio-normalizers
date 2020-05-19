@@ -6,7 +6,9 @@ py_library(
     ],
     deps = [
         '//normalizers/disease/SieveBased/config',
-        '//normalizers/disease/SieveBased/processing'
+        '//normalizers/disease/SieveBased/processing',
+        '//normalizers/disease/SieveBased/processing/sieves',
+        '//normalizers/disease/SieveBased/util',
     ],
 )
 

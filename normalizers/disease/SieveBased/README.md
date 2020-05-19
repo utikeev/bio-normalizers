@@ -1,6 +1,7 @@
 # Sieve-based Disorder Normalizer
 
-This approach uses a bunch of heuristic each represented as a *sieve* of a certain type.
+This approach uses a bunch of heuristic each represented as a *sieve* of a certain type.  
+Compound phrase sieve and abbreviations extraction are omitted to enforce using of AB3P and SimConcept instead.
 
 ## Data
 

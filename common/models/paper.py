@@ -1,15 +1,20 @@
 from typing import List, Dict
 
-from common.models.bio_entities import GeneMention, SpeciesMention
+from common.models.bio_entities import GeneMention, SpeciesMention, DiseaseMention
 from common.models.util import Abbreviation
 
 
 class Passage:
-    def __init__(self, name: str, context: str, genes: List[GeneMention], species: List[SpeciesMention]):
+    def __init__(self, name: str, context: str, *,
+                 genes: List[GeneMention] = None,
+                 species: List[SpeciesMention] = None,
+                 diseases: List[DiseaseMention] = None
+                 ):
         self.name = name
         self.context = context
-        self.genes = genes
-        self.species = species
+        self.genes = genes or []
+        self.species = species or []
+        self.diseases = diseases or []
 
     def __str__(self):
         return f'{self.name}\t{self.context}\t{" ".join([str(a) for a in self.genes])}'

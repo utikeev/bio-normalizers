@@ -25,7 +25,7 @@ class SieveBasedConfig(NamedTuple):
     affix_map_path: str = join(DATA_PATH, 'affix.txt')
     singular_synonyms_path: str = join(DATA_PATH, 'singular_synonyms.txt')
     plural_synonyms_path: str = join(DATA_PATH, 'plural_synonyms.txt')
-
+    terminology_path: str = join(DATA_PATH, 'mesh_terminology.txt')
 #
 # TEST_CONFIG = SieveBasedConfig(
 #     gene_tree_path=join(TREES_PATH, 'PT_GeneTest.txt'),
