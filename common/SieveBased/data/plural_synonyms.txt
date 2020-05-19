@@ -1,0 +1,10 @@
+diseases
+disorders
+conditions
+syndromes
+symptoms
+abnormalities
+events
+episodes
+issues
+impairments

@@ -9,6 +9,7 @@ bazel-out
 bazel-testlogs
 
 **/data/**/*
+!common/SieveBased/data/*
 !**/data/**/BUILD.bazel
 !**/data/**/*.py
 sync-normalizers.sh

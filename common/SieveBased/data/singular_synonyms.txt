@@ -1,0 +1,11 @@
+disease
+disorder
+condition
+syndrome
+symptom
+abnormality
+NOS
+event
+episode
+issue
+impairment
