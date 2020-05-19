@@ -34,12 +34,12 @@ def fill_gene_mention_hash(paper: GNormPaper, gene_mention_hash: GeneMentionHash
 
             m_with_tax = f'{mentions}\t{tax_id}'
 
-            # Filtering
+            # Filtering [Disabled]
             found_filter = False
-            for item in filtering:  # type: Pattern[str]
-                if m_type == GeneType.GENE and re.match(item, mentions):
-                    found_filter = True
-                    break
+            # for item in filtering:  # type: Pattern[str]
+            #     if m_type == GeneType.GENE and re.match(item, mentions):
+            #         found_filter = True
+            #         break
 
             if not found_filter:
                 if m_type == GeneType.GENE:
@@ -196,7 +196,7 @@ def remove_gmt(paper: GNormPaper, gene_mention_hash: GeneMentionHash, gene_scori
                 gmts.append(gene_mention_tax)
 
     for gmt in gmts:  # type: str
-        gene_mention_hash.pop(gmt)
+        gene_mention_hash.pop(gmt, None)
 
 
 def append_gene_ids(paper: GNormPaper, gene_mention_hash: GeneMentionHash, family_name_tree: PrefixTree):

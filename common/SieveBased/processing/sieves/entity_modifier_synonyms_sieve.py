@@ -31,7 +31,9 @@ class EntityModifierSynonymsSieve(BaseSieve):
                 transformed_names.update(
                     self._substitute_entity_modifier_with_synonyms(name, modifier, self.text_processor.plural_synonyms)
                 )
-                transformed_names.add(self._delete_tail_modifier(tokens, modifier))
+                maybe_name = self._delete_tail_modifier(tokens, modifier)
+                if maybe_name:
+                    transformed_names.add(maybe_name)
                 continue
 
             modifier = self._get_modifier(tokens, self.text_processor.singular_synonyms)
@@ -39,7 +41,9 @@ class EntityModifierSynonymsSieve(BaseSieve):
                 transformed_names.update(
                     self._substitute_entity_modifier_with_synonyms(name, modifier, self.text_processor.singular_synonyms)
                 )
-                transformed_names.add(self._delete_tail_modifier(tokens, modifier))
+                maybe_name = self._delete_tail_modifier(tokens, modifier)
+                if maybe_name:
+                    transformed_names.add(maybe_name)
                 continue
             transformed_names.update(self._append_modifier(name, self.text_processor.singular_synonyms))
 

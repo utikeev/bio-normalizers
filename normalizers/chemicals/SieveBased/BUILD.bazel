@@ -1,6 +1,7 @@
 py_library(
     name = 'SieveBased',
     srcs = glob(['*.py']),
+    visibility = ['//visibility:public'],
     data = [
         '//common/SieveBased/data',
         '//normalizers/chemicals/SieveBased/data',

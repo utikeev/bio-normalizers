@@ -35,3 +35,7 @@ hemorrhage||haemorrhage
 parasthesias||paresthesias
 tumour||tumor
 tumours||tumors
+ischaemia||ischemia
+parzosin||prazosin
+coffein||caffeine
+aconitin||aconitine

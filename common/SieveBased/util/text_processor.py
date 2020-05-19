@@ -133,6 +133,7 @@ class TextProcessor:
             Corrected string.
         """
         corrected: List[str] = []
+        string.replace('--', ' ')
         tokens = string.split()
         for token in tokens:
             if token in self.spell_check_map:

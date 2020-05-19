@@ -35,20 +35,13 @@ class GNormSpeciesAnnotation:
 class GNormGeneMention:
     def __init__(self, gene: GeneMention):
         self.gene = gene
+        self.text = self.gene.text
         self.type = GeneType.GENE
         self.tax_id: Optional[GNormSpeciesAnnotation] = None
 
     @property
     def location(self):
         return self.gene.location
-
-    @property
-    def text(self):
-        return self.gene.text
-
-    @text.setter
-    def text(self, value):
-        self.gene.text = value
 
     @property
     def id(self):
