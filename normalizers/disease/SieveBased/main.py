@@ -28,8 +28,6 @@ def main():
     ])
     paper = Paper('1036571', [passage], [])
     normalizer.normalize(paper, verbose=True)
-    # for disease in passage.diseases:
-    #     print(disease)
 
 
 if __name__ == '__main__':
