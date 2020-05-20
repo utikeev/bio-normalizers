@@ -87,3 +87,9 @@ class Terminology:
 
         self.normalized_name_to_cui_map[normalized_key] = entity.id
         self.stemmed_normalized_name_to_cui_map[stemmed_normalized_key] = entity.id
+
+    def clear_normalized_entities(self):
+        """Clear normalized entities after processing the article, as they may be multiple meaning abbreviations.
+        """
+        self.normalized_name_to_cui_map.clear()
+        self.stemmed_normalized_name_to_cui_map.clear()

@@ -64,6 +64,7 @@ class SieveBasedNormalizer:
                 self.terminology.store_normalized_entity(sieve_entity)
             if verbose:
                 print(f'{sieve_entity.text}\t{sieve_entity.id}\t[{self.sieves[sieve_entity.normalizing_sieve_level].name}]')
+        self.terminology.clear_normalized_entities()
 
     def _run_multi_pass_sieve(self, entity: SieveBasedEntity):
         for i, sieve in enumerate(self.sieves[:self.config.sieve_level]):
