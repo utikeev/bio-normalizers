@@ -1,6 +1,6 @@
 from typing import List, Dict
 
-from common.models.bio_entities import GeneMention, SpeciesMention, DiseaseMention, ChemicalMention
+from common.models.bio_entities import GeneMention, SpeciesMention, DiseaseMention, ChemicalMention, BioEntity
 from common.models.util import Abbreviation
 
 
@@ -19,7 +19,9 @@ class Passage:
         self.chemicals: List[ChemicalMention] = chemicals or []
 
     def __str__(self):
-        return f'{self.name}\t{self.context}\t{" ".join([str(a) for a in self.genes])}'
+        all_mentions: List[BioEntity] = self.genes + self.species + self.diseases + self.chemicals
+        mentions_str = "\n".join([str(a) for a in all_mentions])
+        return f'{self.name}\t{self.context}\t{mentions_str}'
 
     def __repr__(self):
         return str(self)

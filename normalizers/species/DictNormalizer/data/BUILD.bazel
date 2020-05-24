@@ -1,5 +1,11 @@
-py_library(
+filegroup(
     name = 'data',
+    srcs = ['species_dict.txt'],
+    visibility = ['//visibility:public'],
+)
+
+py_library(
+    name = "data_lib",
     srcs = glob(['*.py']),
     deps = [],
 )
@@ -8,14 +14,14 @@ py_binary(
     name = 'build_dict_',
     main = 'build_dict.py',
     srcs = ['build_dict.py'],
-    deps = [':data'],
+    deps = [":data_lib"],
 )
 
 py_binary(
     name = 'build_dict_test',
     main = 'build_dict.py',
     srcs = ['build_dict.py'],
-    deps = [':data'],
+    deps = [":data_lib"],
     data = ['@ncbi_taxonomy//:names.dmp'],
     args = [
         '--dump', '$(location @ncbi_taxonomy//:names.dmp)',
