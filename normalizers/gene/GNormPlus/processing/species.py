@@ -22,26 +22,26 @@ def assign_species(paper: GNormPaper, taxonomy_frequency: TaxonomyFrequency, hum
     species_to_num_hash: Dict[str, float] = {}
     for passage in paper.passages:  # type: GNormPassage
         for species in passage.species:  # type: SpeciesMention
-            match = re.match(SPECIES_PATTERN, species.id)
-            if match:
-                ID = match.group(1)
-                weight = 1.0
-                if passage.name == 'title':
-                    weight = 2.0
+            if species.id is None:
+                continue
+            ID = species.id
+            weight = 1.0
+            if passage.name == 'title':
+                weight = 2.0
 
-                if ID in species_to_num_hash:
-                    species_to_num_hash[ID] += weight
+            if ID in species_to_num_hash:
+                species_to_num_hash[ID] += weight
+            else:
+                if ID in taxonomy_frequency:
+                    species_to_num_hash[ID] = taxonomy_frequency[ID] + weight
                 else:
-                    if ID in taxonomy_frequency:
-                        species_to_num_hash[ID] = taxonomy_frequency[ID] + weight
-                    else:
-                        species_to_num_hash[ID] = weight
+                    species_to_num_hash[ID] = weight
 
-                    if ID in human_viruses:
-                        if HUMAN_ID in species_to_num_hash:
-                            species_to_num_hash[HUMAN_ID] += weight
-                        else:
-                            species_to_num_hash[HUMAN_ID] = taxonomy_frequency[HUMAN_ID] + weight
+                if ID in human_viruses:
+                    if HUMAN_ID in species_to_num_hash:
+                        species_to_num_hash[HUMAN_ID] += weight
+                    else:
+                        species_to_num_hash[HUMAN_ID] = taxonomy_frequency[HUMAN_ID] + weight
 
     major_species = HUMAN_ID
     max_species = .0
@@ -82,13 +82,12 @@ def assign_species(paper: GNormPaper, taxonomy_frequency: TaxonomyFrequency, hum
             # Left
             closest_species_start = 0
             for sp in passage.species:  # type: SpeciesMention
+                if sp.id is None:
+                    continue
                 sp_start = sp.location.start
-                match = re.match(SPECIES_PATTERN, sp.id)
-                if match:
-                    tax_id = match.group(1)
-                    if start >= sp_start >= s_start and sp_start > closest_species_start:
-                        closest_species_start = sp_start
-                        gene.tax_id = GNormSpeciesAnnotation(tax_id, SpeciesAnnotationPlacement.LEFT)
+                if start >= sp_start >= s_start and sp_start > closest_species_start:
+                    closest_species_start = sp_start
+                    gene.tax_id = GNormSpeciesAnnotation(sp.id, SpeciesAnnotationPlacement.LEFT)
 
             if gene.tax_id:
                 continue
@@ -96,13 +95,12 @@ def assign_species(paper: GNormPaper, taxonomy_frequency: TaxonomyFrequency, hum
             # Right
             closest_species_end = 1_000_000
             for sp in passage.species:  # type: SpeciesMention
+                if sp.id is None:
+                    continue
                 sp_end = sp.location.end
-                match = re.match(SPECIES_PATTERN, sp.id)
-                if match:
-                    tax_id = match.group(1)
-                    if end <= sp_end <= s_end and sp_end < closest_species_end:
-                        closest_species_end = sp_end
-                        gene.tax_id = GNormSpeciesAnnotation(tax_id, SpeciesAnnotationPlacement.RIGHT)
+                if end <= sp_end <= s_end and sp_end < closest_species_end:
+                    closest_species_end = sp_end
+                    gene.tax_id = GNormSpeciesAnnotation(sp.id, SpeciesAnnotationPlacement.RIGHT)
 
             if gene.tax_id:
                 continue
