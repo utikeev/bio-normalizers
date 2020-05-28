@@ -6,6 +6,7 @@ from common.models.paper import Paper
 
 DATA_PATH = join(dirname(__file__), 'data')
 
+
 class ChemicalsSieveBasedNormalizer(SieveBasedNormalizer):
     def __init__(self, config: SieveBasedConfig):
         super(ChemicalsSieveBasedNormalizer, self).__init__(config)
