@@ -17,18 +17,6 @@ py_binary(
     deps = [":data_lib"],
 )
 
-py_binary(
-    name = 'build_dict_test',
-    main = 'build_dict.py',
-    srcs = ['build_dict.py'],
-    deps = [":data_lib"],
-    data = ['@ncbi_taxonomy//:names.dmp'],
-    args = [
-        '--dump', '$(location @ncbi_taxonomy//:names.dmp)',
-        '--out', '/Users/stanislav.utikeev/Study/master-diploma/taxdump/conflicting.txt'
-    ]
-)
-
 genrule(
     name = 'build_dict',
     srcs = ['@ncbi_taxonomy//:names.dmp'],
