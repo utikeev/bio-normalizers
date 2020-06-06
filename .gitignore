@@ -9,5 +9,10 @@ bazel-out
 bazel-testlogs
 
 **/data/**/*.txt
+!common/SieveBased/data/*.txt
 **/data/**/*.nt
 sync-normalizers.sh
+
+# Build
+bionorm.egg-info
+dist
