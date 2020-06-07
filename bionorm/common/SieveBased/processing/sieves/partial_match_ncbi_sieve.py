@@ -23,6 +23,7 @@ class PartialMatchNCBISieve(BaseSieve):
         if f_id is None:
             stemmed = self.text_processor.get_stemmed_phrase(entity.text)
             return self._partial_match(stemmed, stemmed.split())
+        return f_id
 
     def _init_candidate_maps(self):
         self.cui_candidate_matching_tokens_count_map: Dict[str, int] = {}

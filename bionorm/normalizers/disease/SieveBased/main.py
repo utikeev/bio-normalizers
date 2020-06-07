@@ -7,7 +7,7 @@ def main():
     normalizer.load_data(verbose=True)
 
     passage = Passage('abstract', '', diseases=[
-        DiseaseMention(Location(86, 107), 'dysrhythmias'),
+        DiseaseMention(Location(86, 107), 'scleroderma renal crisis'),
     ])
     paper = Paper('1036571', [passage], [Abbreviation('scleroderma renal crisis', 'SRC')])
     normalizer.normalize(paper, verbose=True)
