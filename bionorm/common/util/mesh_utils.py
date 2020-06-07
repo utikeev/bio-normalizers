@@ -82,7 +82,7 @@ def strip_label(label: str) -> str:
     return label[1:-4]
 
 
-def collect_entities(mesh_file: Path, tree_prefix: str, scr_type: Optional[str] = None) -> Dict[str, Set[str]]:
+def collect_entities(mesh_file: Path, tree_prefixes: List[str], scr_type: Optional[str] = None) -> Dict[str, Set[str]]:
     entities: Dict[str, Dict[EntityType, List[str]]] = {}
     with mesh_file.open('r') as mesh:
         lines = mesh.readlines()
@@ -110,7 +110,8 @@ def collect_entities(mesh_file: Path, tree_prefix: str, scr_type: Optional[str] 
     for ent, d in tqdm(entities.items(), 'Processing entities...'):  # type: str, Dict[EntityType, List[str]]
         if scr_type and EntityType.TYPE in d and d[EntityType.TYPE][0] == scr_type:
             result[ent] = set(get_terms_from_concepts(entities, ent))
-        if EntityType.TREE_NUMBER in d and get_id(d[EntityType.TREE_NUMBER][0]).startswith(tree_prefix):
-            add_topical_descriptor(ent)
+        for tree_prefix in tree_prefixes:
+            if EntityType.TREE_NUMBER in d and get_id(d[EntityType.TREE_NUMBER][0]).startswith(tree_prefix):
+                add_topical_descriptor(ent)
 
     return result
