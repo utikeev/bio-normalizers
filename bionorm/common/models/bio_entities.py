@@ -2,7 +2,7 @@ import abc
 from enum import Enum
 from typing import Optional
 
-from bionorm.common.models import Location
+from bionorm.common.models.util import Location
 
 
 class BioEntityType(Enum):

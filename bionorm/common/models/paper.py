@@ -1,6 +1,6 @@
 from typing import List, Dict
 
-from bionorm.common.models import GeneMention, SpeciesMention, DiseaseMention, ChemicalMention, BioEntity, Abbreviation
+from bionorm.common.models.bio_entities import GeneMention, SpeciesMention, DiseaseMention, ChemicalMention, BioEntity, Abbreviation
 
 
 class Passage:
