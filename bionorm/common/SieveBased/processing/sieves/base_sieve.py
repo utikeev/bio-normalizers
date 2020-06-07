@@ -2,7 +2,7 @@ from typing import List, Optional, Dict, Set
 
 from bionorm.common.SieveBased.models import SieveBasedEntity
 from bionorm.common.SieveBased.processing import Terminology
-from bionorm.common.SieveBased.processing.sieves import Sieve
+from bionorm.common.SieveBased.processing.sieves.sieve import Sieve
 
 
 class BaseSieve(Sieve):
