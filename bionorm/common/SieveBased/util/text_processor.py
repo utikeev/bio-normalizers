@@ -111,8 +111,19 @@ class TextProcessor:
         Returns:
             Stemmed string.
         """
+        return self.get_stemmed_phrase_from_tokens(string.split())
+
+    def get_stemmed_phrase_from_tokens(self, tokens: List[str]) -> str:
+        """Stem phrase excluding stopwords from stemming.
+
+        Args:
+            tokens (List[str]):
+                Tokens to stem.
+
+        Returns:
+            Stemmed string.
+        """
         stemmed: List[str] = []
-        tokens = string.split()
         for token in tokens:
             if token in self.stopwords:
                 stemmed.append(token)

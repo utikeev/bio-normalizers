@@ -21,5 +21,5 @@ class ChemicalsSieveBasedNormalizer(SieveBasedNormalizer):
         return ChemicalsSieveBasedNormalizer(SieveBasedConfig(terminology_path=join(DATA_PATH, 'mesh_terminology.txt')))
 
     def normalize(self, paper: Paper, *, verbose: bool = False):
-        all_chemicals = [(chemical, paper.abb_sf_to_lf.get(chemical)) for passage in paper.passages for chemical in passage.chemicals]
+        all_chemicals = [(chemical, paper.abb_sf_to_lf.get(chemical.text.lower())) for passage in paper.passages for chemical in passage.chemicals]
         self.normalize_entities(all_chemicals, verbose=verbose)

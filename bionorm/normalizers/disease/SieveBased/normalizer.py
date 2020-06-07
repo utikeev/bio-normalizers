@@ -21,5 +21,5 @@ class DiseaseSieveBasedNormalizer(SieveBasedNormalizer):
         return DiseaseSieveBasedNormalizer(SieveBasedConfig(terminology_path=join(DATA_PATH, 'mesh_terminology.txt')))
 
     def normalize(self, paper: Paper, *, verbose: bool = False):
-        all_diseases = [(disease, paper.abb_sf_to_lf.get(disease)) for passage in paper.passages for disease in passage.diseases]
+        all_diseases = [(disease, paper.abb_sf_to_lf.get(disease.text.lower())) for passage in paper.passages for disease in passage.diseases]
         self.normalize_entities(all_diseases, verbose=verbose)

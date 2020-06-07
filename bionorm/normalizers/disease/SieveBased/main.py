@@ -1,4 +1,4 @@
-from bionorm.common.models import DiseaseMention, Location, Passage, Paper
+from bionorm.common.models import DiseaseMention, Location, Passage, Paper, Abbreviation
 from bionorm.normalizers.disease.SieveBased import DiseaseSieveBasedNormalizer
 
 
@@ -6,25 +6,16 @@ def main():
     normalizer = DiseaseSieveBasedNormalizer.default()
     normalizer.load_data(verbose=True)
 
-    passage = Passage('abstract', '', diseases=[
-        DiseaseMention(Location(11, 24), 'renal failure'),
-        DiseaseMention(Location(11, 24), 'renal failure'),
-        DiseaseMention(Location(29, 37), 'myositis'),
-        DiseaseMention(Location(48, 74), 'phenytoin hypersensitivity'),
-        DiseaseMention(Location(144, 166), 'maculopapular erythema'),
-        DiseaseMention(Location(228, 241), 'renal failure'),
-        DiseaseMention(Location(246, 254), 'myositis'),
-        DiseaseMention(Location(270, 275), 'fever'),
-        DiseaseMention(Location(277, 292), 'lymphadenopathy'),
-        DiseaseMention(Location(294, 316), 'exfoliative dermatitis'),
-        DiseaseMention(Location(322, 331), 'hepatitis'),
-        DiseaseMention(Location(452, 471), 'renal insufficiency'),
-        DiseaseMention(Location(491, 504), 'renal failure'),
-        DiseaseMention(Location(509, 517), 'myositis'),
-        DiseaseMention(Location(537, 573), 'phenytoin hypersensitivity reactions'),
-        DiseaseMention(Location(612, 629), 'morbilliform rash'),
+    passage = Passage('abstract', 'Scleroderma renal crisis (SRC) is a rare complication of systemic sclerosis (SSc) but can be severe '
+                                  'enough to require temporary or permanent renal replacement therapy. Moderate to high dose '
+                                  'corticosteroid use is recognized as a major risk factor for SRC. Furthermore, there have been reports '
+                                  'of thrombotic microangiopathy precipitated by cyclosporine in patients with SSc. In this article, '
+                                  'we report a patient with SRC induced by tacrolimus and corticosteroids. The aim of this work is to '
+                                  'call attention to the risk of tacrolimus use in patients with SSc', diseases=[
+        DiseaseMention(Location(11, 35), 'scleroderma renal crisis'),
+        DiseaseMention(Location(117, 120), 'SRC'),
     ])
-    paper = Paper('1036571', [passage], [])
+    paper = Paper('1036571', [passage], [Abbreviation('scleroderma renal crisis', 'SRC')])
     normalizer.normalize(paper, verbose=True)
 
 

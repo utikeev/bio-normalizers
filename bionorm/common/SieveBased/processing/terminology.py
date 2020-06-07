@@ -55,15 +55,14 @@ class Terminology:
     def _put_to_maps(self, cui: str, alias: str):
         self.name_to_cui_map[alias].add(cui)
         self.cui_to_name_map[cui].add(alias)
-
-        stemmed_concept_name = self.text_processor.get_stemmed_phrase(alias)
-        self.stemmed_name_to_cui_map[stemmed_concept_name].add(cui)
-        self.cui_to_stemmed_name_map[cui].add(stemmed_concept_name)
-
         tokens = alias.split()
         for token in tokens:
             if token not in self.text_processor.stopwords:
                 self.token_to_name_map[token].add(alias)
+
+        stemmed_concept_name = self.text_processor.get_stemmed_phrase_from_tokens(tokens)
+        self.stemmed_name_to_cui_map[stemmed_concept_name].add(cui)
+        self.cui_to_stemmed_name_map[cui].add(stemmed_concept_name)
 
         if len(tokens) == 3:
             new_phrase = f'{tokens[0]} {tokens[2]}'
@@ -85,8 +84,8 @@ class Terminology:
         stemmed_normalized_key = self.text_processor.get_stemmed_phrase(entity.long_form) if entity.normalizing_sieve_level == 2 \
             else entity.stemmed_name
 
-        self.normalized_name_to_cui_map[normalized_key] = entity.id
-        self.stemmed_normalized_name_to_cui_map[stemmed_normalized_key] = entity.id
+        self.normalized_name_to_cui_map[normalized_key] = {entity.id}
+        self.stemmed_normalized_name_to_cui_map[stemmed_normalized_key] = {entity.id}
 
     def clear_normalized_entities(self):
         """Clear normalized entities after processing the article, as they may be multiple meaning abbreviations.
