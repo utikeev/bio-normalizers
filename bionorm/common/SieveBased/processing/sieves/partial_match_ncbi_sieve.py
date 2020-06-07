@@ -72,7 +72,8 @@ class PartialMatchNCBISieve(BaseSieve):
             min_candidate_length = 1000
             for candidate_cui in max_cui_set:
                 length = self.cui_candidate_length_map[candidate_cui]
-                if length < min_candidate_length:
+                # Prefer D- over C-
+                if length < min_candidate_length or (length == min_candidate_length and candidate_cui.startswith('D')):
                     min_candidate_length = length
                     cui = candidate_cui
         return cui
