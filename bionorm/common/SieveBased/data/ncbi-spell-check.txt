@@ -39,3 +39,4 @@ ischaemia||ischemia
 parzosin||prazosin
 coffein||caffeine
 aconitin||aconitine
+apnoea||apnea
