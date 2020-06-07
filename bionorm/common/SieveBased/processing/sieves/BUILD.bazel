@@ -1,0 +1,9 @@
+py_library(
+    name = 'sieves',
+    srcs = glob(['*.py']),
+    visibility = ['//visibility:public'],
+    deps = [
+        '//bionorm/common/SieveBased/models',
+        '//bionorm/common/SieveBased/processing'
+    ],
+)

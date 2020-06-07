@@ -1,0 +1,17 @@
+py_library(
+    name = 'DictNormalizer',
+    srcs = glob(['*.py']),
+    visibility = ['//visibility:public'],
+    deps = [
+        '//bionorm/common/models',
+        '//bionorm/common/util',
+        '//bionorm/normalizers/species/DictNormalizer/config',
+    ]
+)
+
+py_binary(
+    name = 'main',
+    srcs = ['main.py'],
+    deps = [':DictNormalizer'],
+    data = ['//bionorm/normalizers/species/DictNormalizer/data']
+)

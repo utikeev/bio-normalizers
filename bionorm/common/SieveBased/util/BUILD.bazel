@@ -1,0 +1,9 @@
+py_library(
+    name = 'util',
+    srcs = glob(['*.py']),
+    visibility = ['//visibility:public'],
+    deps = [
+        '//bionorm/common/SieveBased/config',
+        '//bionorm/common/util',
+    ],
+)

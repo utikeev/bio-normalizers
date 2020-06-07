@@ -1,9 +1,0 @@
-py_library(
-    name = 'processing',
-    visibility = ['//visibility:public'],
-    srcs = glob(['*.py']),
-    deps = [
-        '//normalizers/gene/GNormPlus/models',
-        '//normalizers/gene/GNormPlus/util',
-    ],
-)

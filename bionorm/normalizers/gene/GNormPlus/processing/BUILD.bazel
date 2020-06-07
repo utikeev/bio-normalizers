@@ -1,0 +1,9 @@
+py_library(
+    name = 'processing',
+    visibility = ['//visibility:public'],
+    srcs = glob(['*.py']),
+    deps = [
+        '//bionorm/normalizers/gene/GNormPlus/models',
+        '//bionorm/normalizers/gene/GNormPlus/util',
+    ],
+)

@@ -1,9 +1,0 @@
-py_library(
-    name = 'util',
-    srcs = glob(['*.py']),
-    visibility = ['//visibility:public'],
-    deps = [
-        '//common/SieveBased/config',
-        '//common/util',
-    ],
-)

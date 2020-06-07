@@ -1,0 +1,10 @@
+py_library(
+    name = 'processing',
+    srcs = glob(['*.py']),
+    visibility = ['//visibility:public'],
+    deps = [
+        '//bionorm/common/SieveBased/models',
+        '//bionorm/common/SieveBased/util',
+        '//bionorm/common/util',
+    ],
+)

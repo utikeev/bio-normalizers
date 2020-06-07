@@ -1,0 +1,23 @@
+py_library(
+    name = 'GNormPlus',
+    visibility = ['//visibility:public'],
+    imports = ['../../..'],
+    srcs = glob(['*.py']),
+    deps = [
+        '//bionorm/common/models',
+        '//bionorm/common/util',
+        '//bionorm/normalizers/gene/GNormPlus/models',
+        '//bionorm/normalizers/gene/GNormPlus/processing',
+        '//bionorm/normalizers/gene/GNormPlus/util'
+    ],
+)
+
+py_binary(
+    name = 'main',
+    main = 'main.py',
+    srcs = ['main.py'],
+    deps = [
+        ':GNormPlus',
+    ],
+    data = ['//bionorm/normalizers/gene/GNormPlus/data'],
+)

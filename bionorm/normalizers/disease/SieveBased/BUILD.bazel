@@ -1,0 +1,23 @@
+py_library(
+    name = 'SieveBased',
+    srcs = glob(['*.py']),
+    visibility = ['//visibility:public'],
+    data = [
+        '//bionorm/common/SieveBased/data',
+        '//bionorm/normalizers/disease/SieveBased/data',
+    ],
+    deps = [
+        '//bionorm/common/SieveBased',
+        '//bionorm/common/SieveBased/config',
+        '//bionorm/common/SieveBased/processing',
+        '//bionorm/common/SieveBased/processing/sieves',
+        '//bionorm/common/SieveBased/util',
+    ],
+)
+
+py_binary(
+    name = 'main',
+    main = 'main.py',
+    srcs = ['main.py'],
+    deps = [':SieveBased'],
+)

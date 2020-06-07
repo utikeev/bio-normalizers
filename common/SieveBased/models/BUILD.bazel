@@ -1,9 +1,0 @@
-py_library(
-    name = 'models',
-    srcs = glob(['*.py']),
-    visibility = ['//visibility:public'],
-    deps = [
-        '//common/models',
-        '//common/SieveBased/util'
-    ],
-)

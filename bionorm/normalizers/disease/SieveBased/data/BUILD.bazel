@@ -1,0 +1,41 @@
+filegroup(
+    name = 'data',
+    visibility = ['//visibility:public'],
+    srcs = glob(['*.txt']),
+)
+
+py_library(
+    name = 'data_lib',
+    srcs = glob(['*.py']),
+    deps = ['//bionorm/common/util'],
+)
+
+py_binary(
+    name = 'preprocess_mesh',
+    main = 'preprocess_mesh.py',
+    srcs = [':preprocess_mesh.py'],
+    deps = [':data_lib'],
+    data = [
+        '//bionorm/common/data:mesh2020.nt',
+        'mesh_terminology.txt'
+    ],
+    args = [
+        '--mesh_dump', '$(location //bionorm/common/data:mesh2020.nt)',
+        '--out_file', '$(location mesh_terminology.txt)'
+    ]
+)
+
+py_binary(
+    name = 'compare_dicts',
+    main = 'compare_dicts.py',
+    srcs = [':compare_dicts.py'],
+    deps = [':data_lib'],
+    data = [
+        'mesh_terminology.txt',
+        'TERMINOLOGY.txt'
+    ],
+    args = [
+        '--mesh_dump', '$(location mesh_terminology.txt)',
+        '--terminology', '$(location TERMINOLOGY.txt)'
+    ]
+)

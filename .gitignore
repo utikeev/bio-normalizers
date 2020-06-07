@@ -9,7 +9,7 @@ bazel-out
 bazel-testlogs
 
 **/data/**/*.txt
-!common/SieveBased/data/*.txt
+!bionorm/common/SieveBased/data/*.txt
 **/data/**/*.nt
 sync-normalizers.sh
 

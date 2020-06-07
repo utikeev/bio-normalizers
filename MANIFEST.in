@@ -1,1 +1,1 @@
-include common/SieveBased/data/*.txt
+include bionorm/common/SieveBased/data/*.txt
