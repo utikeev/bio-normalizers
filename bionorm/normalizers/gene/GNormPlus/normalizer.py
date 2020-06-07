@@ -5,7 +5,8 @@ from typing import Set, Dict, List, Tuple, Pattern
 
 from tqdm import tqdm
 
-from bionorm.common.models import Paper, process_file
+from bionorm.common.models import Paper
+from bionorm.common.util import process_file
 from bionorm.normalizers.gene.GNormPlus.config import GNormPlusConfig
 from bionorm.normalizers.gene.GNormPlus.models.paper import GNormPaper
 from bionorm.normalizers.gene.GNormPlus.processing import fill_gene_mention_hash, find_in_gene_tree, infer_multiple_genes, \
