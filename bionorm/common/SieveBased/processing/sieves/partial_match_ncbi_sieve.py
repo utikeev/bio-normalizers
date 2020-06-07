@@ -19,7 +19,10 @@ class PartialMatchNCBISieve(BaseSieve):
         return "Partial Match Sieve"
 
     def apply(self, entity: SieveBasedEntity) -> Optional[str]:
-        return self._partial_match(entity.text, entity.text.split())
+        f_id = self._partial_match(entity.text, entity.text.split())
+        if f_id is None:
+            stemmed = self.text_processor.get_stemmed_phrase(entity.text)
+            return self._partial_match(stemmed, stemmed.split())
 
     def _init_candidate_maps(self):
         self.cui_candidate_matching_tokens_count_map: Dict[str, int] = {}
