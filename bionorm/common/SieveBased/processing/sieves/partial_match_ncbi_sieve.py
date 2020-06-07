@@ -48,9 +48,11 @@ class PartialMatchNCBISieve(BaseSieve):
 
             if cui in self.cui_candidate_matching_tokens_count_map:
                 old_count = self.cui_candidate_matching_tokens_count_map[cui]
-                if old_count < count:
-                    self.cui_candidate_matching_tokens_count_map[cui] = count
-                    self.cui_candidate_length_map[cui] = len(candidate.split())
+                if old_count <= count:
+                    new_candidate_len = len(candidate.split())
+                    if old_count < count or (old_count == count and new_candidate_len < self.cui_candidate_length_map[cui]):
+                        self.cui_candidate_matching_tokens_count_map[cui] = count
+                        self.cui_candidate_length_map[cui] = new_candidate_len
             else:
                 self.cui_candidate_matching_tokens_count_map[cui] = count
                 self.cui_candidate_length_map[cui] = len(candidate.split())
