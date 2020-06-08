@@ -6,4 +6,4 @@ DATA_PATH = join(MODULE_PATH, 'data')
 
 
 class DictNormalizerConfig(NamedTuple):
-    dict_path = join(DATA_PATH, 'species_dict.txt')
+    dict_path: str = join(DATA_PATH, 'species_dict.txt')
