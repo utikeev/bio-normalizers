@@ -3,7 +3,8 @@ from typing import Dict, Set, Optional, List, Tuple, Pattern
 
 from bionorm.normalizers.gene.GNormPlus.models import GNormPaper, GeneType, GNormGeneMention, GNormSpeciesAnnotation, \
     SpeciesAnnotationPlacement, GNormPassage
-from bionorm.normalizers.gene.GNormPlus.processing import HUMAN_ID, score_function
+from bionorm.normalizers.gene.GNormPlus.processing.species import HUMAN_ID
+from bionorm.normalizers.gene.GNormPlus.processing.scoring import score_function
 from bionorm.normalizers.gene.GNormPlus.util import PrefixTree, SINGLE_GENE_PATTERN, MULTI_GENE_PATTERN, GENE_GMT_PATTERN, \
     HOMO_GMT_PATTERN, NUMBER_PATTERN, split_to_tokens
 
